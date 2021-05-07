@@ -21,7 +21,7 @@ def get_user_email():
 db.define_table(
     'profile',
     Field('username', requires=IS_NOT_EMPTY()),
-    Field('email', requires=IS_NOT_EMPTY()),
+    Field('email', default=get_user_email, requires=IS_NOT_EMPTY()),
     Field('first_name', requires=IS_NOT_EMPTY()),
     Field('last_name', requires=IS_NOT_EMPTY()),
     Field('rating', 'integer', default=0),
