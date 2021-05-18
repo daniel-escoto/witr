@@ -62,6 +62,7 @@ def add_post():
     first_name = user.get('first_name')
     last_name = user.get('last_name')
     email = user.get('email')
+    username = user.get('username')
     thumbs_up = []
     thumbs_down = []
     id = db.post.insert(
@@ -69,6 +70,7 @@ def add_post():
         first_name=first_name,
         last_name=last_name,
         author_email=email,
+        username=username,
         thumbs_up=thumbs_up,
         thumbs_down=thumbs_down,
     )
@@ -77,6 +79,7 @@ def add_post():
                 first_name=first_name,
                 last_name=last_name,
                 email=email,
+                username=username,
                 thumbs_up=thumbs_up,
                 thumbs_down=thumbs_down)
 
@@ -153,10 +156,13 @@ def get_vote_names():
     for email in vote_email_list:
         selected = (db(db.auth_user.email == email)).select().first()
         if selected is not None:
-            first_name = selected.get("first_name")
-            last_name = selected.get("last_name")
+            # first_name = selected.get("first_name")
+            # last_name = selected.get("last_name")
 
-            name_string += first_name + " " + last_name + ","
+            # name_string += first_name + " " + last_name + ","
+
+            username = selected.get("username")
+            name_string += username + ","
 
     name_string = name_string[:-1] if len(name_string) > 0 else ""
 

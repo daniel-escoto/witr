@@ -21,6 +21,7 @@ db.define_table('post',
                 Field('first_name'),
                 Field('last_name'),
                 Field('author_email'),
+                Field('username'),
                 Field('thumbs_up', 'list:string'),
                 Field('thumbs_down', 'list:string'),
 )

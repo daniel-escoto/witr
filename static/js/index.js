@@ -48,6 +48,7 @@ let init = (app) => {
           first_name: response.data.first_name,
           last_name: response.data.last_name,
           author_email: response.data.email,
+          username: response.data.username,
           thumbs_up: response.data.thumbs_up,
           thumbs_down: response.data.thumbs_down,
         });
