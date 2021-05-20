@@ -69,7 +69,9 @@
 
         <!-- post name -->
         <div class="tile is-child">
-          <p class="has-text-grey">{{r.username}}</p>
+          <a @click="view_profile(r.username)" class="has-text-grey">
+            {{r.username}}</a
+          >
         </div>
 
         <!-- buttons -->
@@ -106,7 +108,7 @@
                 <span
                   v-if="r.thumbs_down.includes(email)"
                   @click="downvote_post(r._idx)"
-                  class="icon is-medium has-text-info"
+                  class="icon is-medium has-text-danger"
                 >
                   <i
                     @mouseover="show_downvotes(r._idx)"
@@ -118,7 +120,7 @@
                 <span
                   v-else
                   @click="downvote_post(r._idx)"
-                  class="icon is-medium has-text-info"
+                  class="icon is-medium has-text-danger"
                 >
                   <i
                     @mouseover="show_downvotes(r._idx)"

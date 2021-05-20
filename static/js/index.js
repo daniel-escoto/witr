@@ -166,6 +166,10 @@ let init = (app) => {
     app.vue.hover_idx = -1;
   };
 
+  app.view_profile = function (username) {
+    window.location.href = `../view/${username}`;
+  };
+
   // This contains all the methods.
   app.methods = {
     // Complete as you see fit.
@@ -178,6 +182,7 @@ let init = (app) => {
     show_upvotes: app.show_upvotes,
     show_downvotes: app.show_downvotes,
     hide_votes: app.hide_votes,
+    view_profile: app.view_profile,
   };
 
   // This creates the Vue instance.

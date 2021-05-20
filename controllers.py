@@ -167,3 +167,22 @@ def get_vote_names():
     name_string = name_string[:-1] if len(name_string) > 0 else ""
 
     return dict(name_string=name_string)
+
+@action('view/<username>', method=["GET"])
+@action.uses(url_signer, auth, db, 'view.html')
+def view(username):
+    user = auth.get_user() or redirect(URL('auth/login'))
+    return dict(
+        load_user_info_url = URL('load_user_info', username, signer=url_signer),
+    )
+
+@action('load_user_info/<username>', method=["GET"])
+@action.uses(url_signer.verify(), db)
+def load_user_info(username):
+    user = (db(db.post.username == username)).select().first()
+    found_username = user.username
+    found_full_name = user.first_name + " " + user.last_name
+    return dict(
+        username = found_username,
+        full_name = found_full_name,
+    )
