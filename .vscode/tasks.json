@@ -1,0 +1,53 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "echo",
+      "type": "shell",
+      "command": "echo Hello"
+    },
+    {
+      "label": "kill",
+      "command": "${command:workbench.action.terminal.kill}"
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "py4web run /Users/danielescoto/Desktop/cse183/apps",
+      "group": "build",
+      "dependsOrder": "sequence",
+      "dependsOn": ["kill"]
+    },
+    {
+      "label": "run",
+      "dependsOrder": "sequence",
+      "dependsOn": ["kill", "build"],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "open_webpage",
+      "type": "shell",
+      "command": "open",
+      "args": ["http://127.0.0.1:8000/hw4/index"]
+    },
+    {
+      "label": "start",
+      "dependsOrder": "sequence",
+      "dependsOn": ["open_webpage", "run"]
+    },
+    {
+      "label": "clear",
+      "type": "shell",
+      "command": "rm -f !(README.md)",
+      "options": {
+        "cwd": "${workspaceFolder}/databases"
+      }
+    }
+  ]
+}

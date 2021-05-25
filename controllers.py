@@ -28,10 +28,161 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
+from py4web.utils.url_signer import URLSigner
 
+url_signer = URLSigner(session)
 
-@unauthenticated("index", "index.html")
+@action('index')
+@action.uses(db, auth, url_signer, 'index.html')
 def index():
-    user = auth.get_user()
-    message = T("Hello {first_name}".format(**user) if user else "Hello")
-    return dict(message=message)
+    user = auth.get_user() or redirect(URL('auth/login'))
+    return dict(
+        # COMPLETE: return here any signed URLs you need.
+        # my_callback_url = URL('my_callback', signer=url_signer),
+        load_posts_url = URL('load_posts', signer=url_signer),
+        add_post_url = URL('add_post', signer=url_signer),
+        delete_post_url = URL('delete_post', signer=url_signer),
+        upvote_post_url = URL('upvote_post', signer=url_signer),
+        downvote_post_url = URL('downvote_post', signer=url_signer),
+        get_vote_names_url = URL('get_vote_names', signer=url_signer),
+    )
+
+@action('load_posts')
+@action.uses(url_signer.verify(), db)
+def load_posts():
+    user = auth.get_user() or redirect(URL('auth/login'))
+    return dict(rows=db(db.post).select().as_list(),
+                email=user.get("email"),)
+
+@action('add_post', method="POST")
+@action.uses(url_signer.verify(), db)
+def add_post():
+    user = auth.get_user() or redirect(URL('auth/login'))
+
+    first_name = user.get('first_name')
+    last_name = user.get('last_name')
+    email = user.get('email')
+    username = user.get('username')
+    thumbs_up = []
+    thumbs_down = []
+    id = db.post.insert(
+        content=request.json.get('content'),
+        first_name=first_name,
+        last_name=last_name,
+        author_email=email,
+        username=username,
+        thumbs_up=thumbs_up,
+        thumbs_down=thumbs_down,
+    )
+
+    return dict(id=id,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                username=username,
+                thumbs_up=thumbs_up,
+                thumbs_down=thumbs_down)
+
+@action('delete_post')
+@action.uses(url_signer.verify(), db)
+def delete_post():
+    id = request.params.get('id')
+    assert id is not None
+    db(db.post.id == id).delete()
+    return "ok"
+
+@action('upvote_post', method="POST")
+@action.uses(url_signer.verify(), db)
+def upvote_post():
+    user = auth.get_user() or redirect(URL('auth/login'))
+    email = user.get('email')
+    id = request.json.get('id')
+    assert id is not None
+    upvote_list = (db(db.post.id == id)).select().first().thumbs_up
+    downvote_list = (db(db.post.id == id)).select().first().thumbs_down
+
+    if email in upvote_list:
+        upvote_list.remove(email)
+        status = "out"
+    else:
+        upvote_list.append(email)
+        status = "in"
+        if email in downvote_list:
+            downvote_list.remove(email)
+            status = "in_and_flip"
+
+    
+
+    db(db.post.id == id).update(
+        thumbs_up=upvote_list,
+        thumbs_down=downvote_list,
+    )
+
+    return status
+
+@action('downvote_post', method="POST")
+@action.uses(url_signer.verify(), db)
+def downvote_post():
+    user = auth.get_user() or redirect(URL('auth/login'))
+    email = user.get('email')
+    id = request.json.get('id')
+    assert id is not None
+    upvote_list = (db(db.post.id == id)).select().first().thumbs_up
+    downvote_list = (db(db.post.id == id)).select().first().thumbs_down
+
+    if email in downvote_list:
+        downvote_list.remove(email)
+        status = "out"
+    else:
+        downvote_list.append(email)
+        status = "in"
+        if email in upvote_list:
+            upvote_list.remove(email)
+            status = "in_and_flip"
+
+    db(db.post.id == id).update(
+        thumbs_up=upvote_list,
+        thumbs_down=downvote_list,
+    )
+
+    return status
+
+@action('get_vote_names')
+@action.uses(url_signer.verify(), db)
+def get_vote_names():
+    name_string = ""
+
+    vote_email_list = request.params.get('vote_list').split(',')
+    for email in vote_email_list:
+        selected = (db(db.auth_user.email == email)).select().first()
+        if selected is not None:
+            # first_name = selected.get("first_name")
+            # last_name = selected.get("last_name")
+
+            # name_string += first_name + " " + last_name + ","
+
+            username = selected.get("username")
+            name_string += username + ","
+
+    name_string = name_string[:-1] if len(name_string) > 0 else ""
+
+    return dict(name_string=name_string)
+
+@action('view/<username>', method=["GET"])
+@action.uses(url_signer, auth, db, 'view.html')
+def view(username):
+    user = auth.get_user() or redirect(URL('auth/login'))
+    return dict(
+        load_user_info_url = URL('load_user_info', username, signer=url_signer),
+    )
+
+@action('load_user_info/<username>', method=["GET"])
+@action.uses(url_signer.verify(), db)
+def load_user_info(username):
+    user = (db(db.post.username == username)).select().first()
+    found_username = user.username
+    found_full_name = user.first_name + " " + user.last_name
+    return dict(
+        username = found_username,
+        full_name = found_full_name,
+    )

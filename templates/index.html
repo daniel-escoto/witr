@@ -1,7 +1,166 @@
 [[extend 'layout.html']]
 
-<div class="section">
-  <div class="vars">
-      [[=message]]
+<style>
+  [v-cloak] {
+    display: none;
+  }
+</style>
+
+<div class="section" id="vue-target" v-cloak>
+  <!-- Put here your Vue.js template -->
+
+  <!-- title -->
+  <div class="container block">
+    <h1 class="title">witr</h1>
+  </div>
+
+  <!-- post options -->
+  <div v-if="add_mode" class="container block">
+    <div class="form">
+      <!-- for textarea -->
+      <div class="field">
+        <textarea v-model="add_content" class="textarea"></textarea>
+      </div>
+
+      <!-- for buttons -->
+      <div class="field">
+        <div class="control">
+          <input
+            type="submit"
+            @click="add_post"
+            value="Post"
+            class="button is-primary"
+          />
+          <input
+            type="submit"
+            @click="set_add_post(false)"
+            value="Cancel"
+            class="button is-warning"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div v-else class="container block">
+    <div class="form">
+      <div class="field">
+        <div class="control">
+          <button
+            type="submit"
+            @click="set_add_post(true)"
+            class="button is-primary"
+          >
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- posts -->
+  <div v-for="r in rows.slice().reverse()" class="container block">
+    <!-- post -->
+    <div class="tile is-ancestor has-background-light">
+      <div class="tile is-vertical pr-6 py-5 is-parent">
+        <!-- post text -->
+        <div class="tile is-child">
+          <p>{{r.content}}</p>
+        </div>
+
+        <!-- post name -->
+        <div class="tile is-child">
+          <a @click="view_profile(r.username)" class="has-text-grey">
+            {{r.username}}</a
+          >
+        </div>
+
+        <!-- buttons -->
+        <div class="tile is-child">
+          <nav class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <!-- thumbs up (highlighted) -->
+                <span
+                  v-if="r.thumbs_up.includes(email)"
+                  @click="upvote_post(r._idx)"
+                  class="icon is-medium has-text-info"
+                >
+                  <i
+                    @mouseover="show_upvotes(r._idx)"
+                    @mouseleave="hide_votes"
+                    class="fas fa-thumbs-up fa-lg fa-flip-horizontal"
+                  ></i>
+                </span>
+                <!-- thumbs up (un-highlighted) -->
+                <span
+                  v-else
+                  @click="upvote_post(r._idx)"
+                  class="icon is-medium has-text-info"
+                >
+                  <i
+                    @mouseover="show_upvotes(r._idx)"
+                    @mouseleave="hide_votes"
+                    class="far fa-thumbs-up fa-lg fa-flip-horizontal"
+                  ></i>
+                </span>
+
+                <!-- thumbs down (highlighted)  -->
+                <span
+                  v-if="r.thumbs_down.includes(email)"
+                  @click="downvote_post(r._idx)"
+                  class="icon is-medium has-text-danger"
+                >
+                  <i
+                    @mouseover="show_downvotes(r._idx)"
+                    @mouseleave="hide_votes"
+                    class="fas fa-thumbs-down fa-lg"
+                  ></i>
+                </span>
+                <!-- thumbs down (un-highlighted)  -->
+                <span
+                  v-else
+                  @click="downvote_post(r._idx)"
+                  class="icon is-medium has-text-danger"
+                >
+                  <i
+                    @mouseover="show_downvotes(r._idx)"
+                    @mouseleave="hide_votes"
+                    class="far fa-thumbs-down fa-lg"
+                  ></i>
+                </span>
+              </div>
+              <div v-if="r._idx === hover_idx" class="level-item">
+                <span class="content has-text-info">{{vote_status}}</span>
+              </div>
+            </div>
+            <div v-if="r.author_email === email" class="level-right">
+              <div class="level-item">
+                <!-- trash button -->
+                <span
+                  @click="delete_post(r._idx)"
+                  class="icon is-medium has-text-danger"
+                >
+                  <i class="fas fa-trash-alt fa-lg"></i>
+                </span>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
+[[block page_scripts]]
+<!-- Loads the index-specific js for Vue -->
+<script>
+  //
+  let load_posts_url = "[[=XML(load_posts_url)]]";
+  let add_post_url = "[[=XML(add_post_url)]]";
+  let delete_post_url = "[[=XML(delete_post_url)]]";
+  let upvote_post_url = "[[=XML(upvote_post_url)]]";
+  let downvote_post_url = "[[=XML(downvote_post_url)]]";
+  let get_vote_names_url = "[[=XML(get_vote_names_url)]]";
+</script>
+<script src="js/index.js"></script>
+[[end]]
