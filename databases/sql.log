@@ -41,3 +41,205 @@ CREATE TABLE "post"(
     "thumbs_down" TEXT
 );
 success!
+timestamp: 2021-05-25T17:33:22.680248
+ALTER TABLE "post" ADD "picture" CHAR(512);
+success!
+timestamp: 2021-05-25T17:43:39.246206
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "picture" CHAR(512)
+);
+success!
+success!
+timestamp: 2021-05-25T18:01:35.140024
+ALTER TABLE "profile" ADD "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ;
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-25T19:14:29.045828
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" CHAR(512),
+    "picture" TEXT
+);
+success!
+success!
+success!
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-25T19:15:59.488754
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" CHAR(512),
+    "picture" TEXT
+);
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-25T19:31:56.079221
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "picture" TEXT
+);
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+DROP TABLE "post";
+success!
+timestamp: 2021-05-25T19:35:14.013881
+CREATE TABLE "post"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "content" CHAR(512),
+    "first_name" CHAR(512),
+    "last_name" CHAR(512),
+    "author_email" CHAR(512),
+    "username" CHAR(512),
+    "thumbs_up" TEXT,
+    "thumbs_down" TEXT
+);
+success!
+timestamp: 2021-05-25T20:07:42.713332
+ALTER TABLE "profile" ADD "username" CHAR(512);
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-25T20:12:16.200516
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "username" CHAR(512),
+    "picture" TEXT
+);
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-25T20:14:44.645477
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "username" CHAR(512),
+    "picture" TEXT
+);
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-25T20:39:42.793671
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "username" CHAR(512),
+    "picture" TEXT
+);
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-25T20:48:35.319276
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "username" CHAR(512),
+    "picture" TEXT
+);
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-25T20:49:25.565131
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "username" CHAR(512),
+    "picture" TEXT
+);
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-25T20:51:01.918998
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "username" CHAR(512),
+    "picture" TEXT
+);
+success!

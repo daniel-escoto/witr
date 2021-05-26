@@ -53,6 +53,15 @@ def load_posts():
     user = auth.get_user() or redirect(URL('auth/login'))
     return dict(rows=db(db.post).select().as_list(),
                 email=user.get("email"),)
+                
+                
+@action('load_profposts/<username>')
+@action.uses(url_signer.verify(), db)
+def load_profposts(username):
+    user = auth.get_user() or redirect(URL('auth/login'))
+    rows = db(db.post.username == username).select().as_list()
+    return dict(rows=rows,
+                email=user.get("email"),)
 
 @action('add_post', method="POST")
 @action.uses(url_signer.verify(), db)
@@ -168,21 +177,64 @@ def get_vote_names():
 
     return dict(name_string=name_string)
 
+@action('upload_picture', method="POST")
+@action.uses(url_signer.verify(), db)
+def upload_picture():
+    prof = request.json.get("profid")
+    picture = request.json.get("picture")
+    db(db.profile.id == prof).update(picture=picture)
+    return "ok"
+
+
+
+
+
 @action('view/<username>', method=["GET"])
 @action.uses(url_signer, auth, db, 'view.html')
 def view(username):
     user = auth.get_user() or redirect(URL('auth/login'))
+    
     return dict(
         load_user_info_url = URL('load_user_info', username, signer=url_signer),
+        load_profposts_url = URL('load_profposts', username, signer=url_signer),
+        delete_post_url = URL('delete_post', signer=url_signer),
+        upvote_post_url = URL('upvote_post', signer=url_signer),
+        downvote_post_url = URL('downvote_post', signer=url_signer),
+        get_vote_names_url = URL('get_vote_names', signer=url_signer),
+        upload_picture_url = URL('upload_picture', signer=url_signer),
     )
 
 @action('load_user_info/<username>', method=["GET"])
 @action.uses(url_signer.verify(), db)
 def load_user_info(username):
-    user = (db(db.post.username == username)).select().first()
-    found_username = user.username
-    found_full_name = user.first_name + " " + user.last_name
+    user = auth.get_user() 
+    #Check for Permissions to allow editing on page
+    permission = False
+    if user.get('username') == username:
+        permission = True
+    
+    user1 = (db(db.post.username == username)).select().first()
+    prof_id = -1
+    if permission:
+        prof_id = db(db.profile.user == user.get('id')).select().as_list()
+        if not prof_id:
+            prof_id = db.profile.insert(
+                picture = "",
+                username = username,
+            )
+        else:
+            prof_id = prof_id[0]['id']
+
+    found_username = user1.username
+    found_full_name = user1.first_name + " " + user1.last_name
+    picture = db(db.profile.username == username).select().as_list()
+    prof = db(db.profile.username == username).select().as_list()
+    picture = picture[0]['picture']
     return dict(
         username = found_username,
         full_name = found_full_name,
+        picture = picture,
+        permission = permission,
+        prof_id = prof_id,
+        profile = prof
     )
