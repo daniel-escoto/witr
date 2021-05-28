@@ -24,13 +24,34 @@ The path follows the bottlepy syntax.
 session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
+import datetime
+import json
+import os
+import traceback
+import uuid
+
+from nqgcs import NQGCS
 
 from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
 from py4web.utils.url_signer import URLSigner
+from .settings import APP_FOLDER
+from .gcs_url import gcs_url
 
 url_signer = URLSigner(session)
+
+BUCKET = '/witr-uploads'
+# GCS keys.  You have to create them for this to work.  See README.md
+GCS_KEY_PATH = os.path.join(APP_FOLDER, 'private/witr_keys.json')
+with open(GCS_KEY_PATH) as gcs_key_f:
+    GCS_KEYS = json.load(gcs_key_f)
+
+# I create a handle to gcs, to perform the various operations.
+gcs = NQGCS(json_key_path=GCS_KEY_PATH)
+
+
+
 
 @action('index')
 @action.uses(db, auth, url_signer, 'index.html')
@@ -177,23 +198,12 @@ def get_vote_names():
 
     return dict(name_string=name_string)
 
-@action('upload_picture', method="POST")
-@action.uses(url_signer.verify(), db)
-def upload_picture():
-    prof = request.json.get("profid")
-    picture = request.json.get("picture")
-    db(db.profile.id == prof).update(picture=picture)
-    return "ok"
-
-
-
 
 
 @action('view/<username>', method=["GET"])
 @action.uses(url_signer, auth, db, 'view.html')
 def view(username):
     user = auth.get_user() or redirect(URL('auth/login'))
-    
     return dict(
         load_user_info_url = URL('load_user_info', username, signer=url_signer),
         load_profposts_url = URL('load_profposts', username, signer=url_signer),
@@ -202,6 +212,10 @@ def view(username):
         downvote_post_url = URL('downvote_post', signer=url_signer),
         get_vote_names_url = URL('get_vote_names', signer=url_signer),
         upload_picture_url = URL('upload_picture', signer=url_signer),
+        file_info_url = URL('file_info', signer=url_signer),
+        obtain_gcs_url = URL('obtain_gcs', signer=url_signer),
+        notify_url = URL('notify_upload', signer=url_signer),
+        delete_url = URL('notify_delete', signer=url_signer),
     )
 
 @action('load_user_info/<username>', method=["GET"])
@@ -214,27 +228,158 @@ def load_user_info(username):
         permission = True
     
     user1 = (db(db.post.username == username)).select().first()
-    prof_id = -1
-    if permission:
-        prof_id = db(db.profile.user == user.get('id')).select().as_list()
-        if not prof_id:
-            prof_id = db.profile.insert(
-                picture = "",
-                username = username,
-            )
-        else:
-            prof_id = prof_id[0]['id']
-
     found_username = user1.username
     found_full_name = user1.first_name + " " + user1.last_name
-    picture = db(db.profile.username == username).select().as_list()
-    prof = db(db.profile.username == username).select().as_list()
-    picture = picture[0]['picture']
+    prof = db(db.profile.username == username).select().first()
+    if not prof:
+        prof = ""
+    else:
+        prof = "https://storage.cloud.google.com" + prof.file_path
+    print(prof)
     return dict(
         username = found_username,
         full_name = found_full_name,
-        picture = picture,
         permission = permission,
-        prof_id = prof_id,
-        profile = prof
+        picture= prof
+    )
+    
+    
+    
+#
+# GCS CODE
+#
+#
+@action('file_info')
+@action.uses(url_signer.verify(), db)
+def file_info():
+    """Returns to the web app the information about the file currently
+    uploaded, if any, so that the user can download it or replace it with
+    another file if desired."""
+    user = auth.get_user()
+    row = db(db.profile.user == user.get('id')).select().first()
+    # The file is present if the row is not None, and if the upload was
+    # confirmed.  Otherwise, the file has not been confirmed as uploaded,
+    # and should be deleted.
+    if row is not None and not row.confirmed:
+        # We need to try to delete the old file content.
+        delete_path(row.file_path)
+        row.delete_record()
+        row = {}
+    if row is None:
+        # There is no file.
+        row = {}
+    file_path = row.get('file_path')
+    return dict(
+        file_name=row.get('file_name'),
+        file_type=row.get('file_type'),
+        file_date=row.get('file_date'),
+        file_size=row.get('file_size'),
+        file_path=file_path,
+        # These two could be controlled to get other things done.
+        upload_enabled=True,
+    )
+
+@action('obtain_gcs', method="POST")
+@action.uses(url_signer.verify(), db)
+def obtain_gcs():
+    """Returns the URL to do download / upload / delete for GCS."""
+    user = auth.get_user()
+    verb = request.json.get("action")
+    if verb == "PUT":
+        mimetype = request.json.get("mimetype", "")
+        file_name = request.json.get("file_name")
+        extension = os.path.splitext(file_name)[1]
+        # Use + and not join for Windows, thanks Blayke Larue
+        file_path = BUCKET + "/" + str(uuid.uuid1()) + extension
+        # Marks that the path may be used to upload a file.
+        mark_possible_upload(file_path)
+        upload_url = gcs_url(GCS_KEYS, file_path, verb='PUT',
+                             content_type=mimetype)
+        return dict(
+            signed_url=upload_url,
+            file_path=file_path
+        )
+    elif verb == "DELETE":
+        file_path = request.json.get("file_path")
+        if file_path is not None:
+            # We check that the file_path belongs to the user.
+            r = db(db.profile.file_path == file_path).select().first()
+            if r is not None and r.user == user.get('id'):
+                # Yes, we can let the deletion happen.
+                delete_url = gcs_url(GCS_KEYS, file_path, verb='DELETE')
+                return dict(signed_url=delete_url)
+        # Otherwise, we return no URL, so we don't authorize the deletion.
+        return dict(signer_url=None)
+
+@action('notify_upload', method="POST")
+@action.uses(url_signer.verify(), db)
+def notify_upload():
+    """We get the notification that the file has been uploaded."""
+    user1 = auth.get_user()
+    file_type = request.json.get("file_type")
+    file_name = request.json.get("file_name")
+    file_path = request.json.get("file_path")
+    file_size = request.json.get("file_size")
+    print("File was uploaded:", file_path, file_name, file_type)
+    # Deletes any previous file.
+    rows = db(db.profile.user == user1.get('id')).select()
+    for r in rows:
+        if r.file_path != file_path:
+            delete_path(r.file_path)
+    # Marks the upload as confirmed.
+    d = datetime.datetime.utcnow()
+    db.profile.update_or_insert(
+        ((db.profile.user == user1.get('id')) &
+         (db.profile.file_path == file_path)),
+        username = user1.get('username'),
+        file_path=file_path,
+        file_name=file_name,
+        file_type=file_type,
+        file_date=d,
+        file_size=file_size,
+        confirmed=True,
+    )
+    # Returns the file information.
+    return dict(
+        download_url=gcs_url(GCS_KEYS, file_path, verb='GET'),
+        file_date=d,
+    )
+
+@action('notify_delete', method="POST")
+@action.uses(url_signer.verify(), db)
+def notify_delete():
+    user = auth.get_user()
+    file_path = request.json.get("file_path")
+    # We check that the owner matches to prevent DDOS.
+    db((db.profile.user == user.get('id')) &
+       (db.profile.file_path == file_path)).delete()
+    return dict()
+
+def delete_path(file_path):
+    """Deletes a file given the path, without giving error if the file
+    is missing."""
+    try:
+        bucket, id = os.path.split(file_path)
+        gcs.delete(bucket[1:], id)
+    except:
+        # Ignores errors due to missing file.
+        pass
+
+def delete_previous_uploads():
+    """Deletes all previous uploads for a user, to be ready to upload a new file."""
+    user = auth.get_user()
+    previous = db(db.profile.user == user.get('id')).select()
+    for p in previous:
+        # There should be only one, but let's delete them all.
+        delete_path(p.file_path)
+    db(db.profile.user == user.get('id')).delete()
+
+def mark_possible_upload(file_path):
+    """Marks that a file might be uploaded next."""
+    user1 = auth.get_user()
+    delete_previous_uploads()
+    db.profile.insert(
+        username = user1.get('username'),
+        file_path=file_path,
+        confirmed=False,
     )

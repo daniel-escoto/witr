@@ -243,3 +243,96 @@ CREATE TABLE "profile"(
     "picture" TEXT
 );
 success!
+timestamp: 2021-05-27T17:29:28.212784
+ALTER TABLE "profile" ADD "file_name" CHAR(512);
+timestamp: 2021-05-27T17:29:28.218579
+ALTER TABLE "profile" ADD "file_type" CHAR(512);
+timestamp: 2021-05-27T17:29:28.220281
+ALTER TABLE "profile" ADD "file_date" CHAR(512);
+timestamp: 2021-05-27T17:29:28.221561
+ALTER TABLE "profile" ADD "file_path" CHAR(512);
+timestamp: 2021-05-27T17:29:28.222931
+ALTER TABLE "profile" ADD "file_size" INTEGER;
+timestamp: 2021-05-27T17:29:28.224339
+ALTER TABLE "profile" ADD "confirmed" CHAR(1);
+success!
+success!
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-27T18:24:14.015131
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "username" CHAR(512),
+    "picture" TEXT,
+    "file_name" CHAR(512),
+    "file_type" CHAR(512),
+    "file_date" CHAR(512),
+    "file_path" CHAR(512),
+    "file_size" INTEGER,
+    "confirmed" CHAR(1)
+);
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-27T19:38:13.403154
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "username" CHAR(512),
+    "file_name" CHAR(512),
+    "file_type" CHAR(512),
+    "file_date" CHAR(512),
+    "file_path" CHAR(512),
+    "file_size" INTEGER,
+    "confirmed" CHAR(1)
+);
+success!
+DROP TABLE "profile";
+success!
+timestamp: 2021-05-27T19:38:40.522485
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "username" CHAR(512),
+    "file_name" CHAR(512),
+    "file_type" CHAR(512),
+    "file_date" CHAR(512),
+    "file_path" CHAR(512),
+    "file_size" INTEGER,
+    "confirmed" CHAR(1)
+);
+success!

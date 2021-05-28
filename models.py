@@ -20,7 +20,13 @@ def get_user_id():
 db.define_table('profile',
                 Field('user', 'reference auth_user', default = get_user_id),
                 Field('username'),
-                Field('picture', 'text'),
+                #Field('picture', 'text'),
+                Field('file_name'),
+                Field('file_type'),
+                Field('file_date'),
+                Field('file_path'),
+                Field('file_size', 'integer'),
+                Field('confirmed', 'boolean', default=False), # Was the upload to GCS confirmed?
 
 
 )
