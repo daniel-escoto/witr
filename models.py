@@ -40,6 +40,7 @@ db.define_table('post',
                 Field('username'),
                 Field('thumbs_up', 'list:string'),
                 Field('thumbs_down', 'list:string'),
+                Field('datetime', 'datetime'),
 )
 
 

@@ -57,8 +57,21 @@
     </div>
   </div>
 
+  <!-- sort selecter -->
+  <div class="container block">
+    <div class="select">
+      <select v-model="sort_option">
+        <option>Most Recent</option>
+        <option>Most Upvotes</option>
+        <option>Most Downvotes</option>
+        <option>Most Votes</option>
+        <option>Most Controversial</option>
+      </select>
+    </div>
+  </div>
+
   <!-- posts -->
-  <div v-for="r in rows.slice().reverse()" class="container block">
+  <div v-for="r in rows" class="container block">
     <!-- post -->
     <div class="tile is-ancestor has-background-light">
       <div class="tile is-vertical pr-6 py-5 is-parent">
@@ -85,11 +98,7 @@
                   @click="upvote_post(r._idx)"
                   class="icon is-medium has-text-info"
                 >
-                  <i
-                    @mouseover="show_upvotes(r._idx)"
-                    @mouseleave="hide_votes"
-                    class="fas fa-thumbs-up fa-lg fa-flip-horizontal"
-                  ></i>
+                  <i class="fas fa-thumbs-up fa-lg fa-flip-horizontal"></i>
                 </span>
                 <!-- thumbs up (un-highlighted) -->
                 <span
@@ -97,11 +106,32 @@
                   @click="upvote_post(r._idx)"
                   class="icon is-medium has-text-info"
                 >
-                  <i
-                    @mouseover="show_upvotes(r._idx)"
-                    @mouseleave="hide_votes"
-                    class="far fa-thumbs-up fa-lg fa-flip-horizontal"
-                  ></i>
+                  <i class="far fa-thumbs-up fa-lg fa-flip-horizontal"></i>
+                </span>
+
+                <!-- blue count -->
+                <span
+                  v-if="r.thumbs_up.length > r.thumbs_down.length"
+                  class="has-text-info"
+                >
+                  <div class="content">
+                    {{`+${r.thumbs_up.length - r.thumbs_down.length}`}}
+                  </div>
+                </span>
+                <!-- red count -->
+                <span
+                  v-else-if="r.thumbs_up.length < r.thumbs_down.length"
+                  class="has-text-danger"
+                >
+                  <div class="content">
+                    {{r.thumbs_up.length - r.thumbs_down.length}}
+                  </div></span
+                >
+                <!-- grey count -->
+                <span v-else class="has-text-grey">
+                  <div class="content">
+                    {{r.thumbs_up.length - r.thumbs_down.length}}
+                  </div>
                 </span>
 
                 <!-- thumbs down (highlighted)  -->
@@ -110,11 +140,7 @@
                   @click="downvote_post(r._idx)"
                   class="icon is-medium has-text-danger"
                 >
-                  <i
-                    @mouseover="show_downvotes(r._idx)"
-                    @mouseleave="hide_votes"
-                    class="fas fa-thumbs-down fa-lg"
-                  ></i>
+                  <i class="fas fa-thumbs-down fa-lg"></i>
                 </span>
                 <!-- thumbs down (un-highlighted)  -->
                 <span
@@ -122,15 +148,31 @@
                   @click="downvote_post(r._idx)"
                   class="icon is-medium has-text-danger"
                 >
-                  <i
-                    @mouseover="show_downvotes(r._idx)"
-                    @mouseleave="hide_votes"
-                    class="far fa-thumbs-down fa-lg"
-                  ></i>
+                  <i class="far fa-thumbs-down fa-lg"></i>
+                </span>
+                <!-- blue icon -->
+                <span
+                  v-if="r.thumbs_up.length > r.thumbs_down.length"
+                  class="fa-layers fa-lg fa-fw"
+                >
+                  <i class="fas fa-info-circle has-text-info"></i>
+                </span>
+                <!-- red icon -->
+                <span
+                  v-else-if="r.thumbs_up.length < r.thumbs_down.length"
+                  class="fa-layers fa-lg fa-fw"
+                >
+                  <i class="fas fa-info-circle has-text-danger"></i>
+                </span>
+                <!-- grey icon -->
+                <span v-else class="fa-layers fa-lg fa-fw">
+                  <i class="fas fa-info-circle has-text-grey"></i>
                 </span>
               </div>
-              <div v-if="r._idx === hover_idx" class="level-item">
-                <span class="content has-text-info">{{vote_status}}</span>
+              <div class="level-item">
+                <span class="content has-text-grey"
+                  >{{r.display_datetime}}</span
+                >
               </div>
             </div>
             <div v-if="r.author_email === email" class="level-right">
@@ -162,5 +204,5 @@
   let downvote_post_url = "[[=XML(downvote_post_url)]]";
   let get_vote_names_url = "[[=XML(get_vote_names_url)]]";
 </script>
-<script src="js/index.js"></script>
+<script type="module" src="js/index.js"></script>
 [[end]]

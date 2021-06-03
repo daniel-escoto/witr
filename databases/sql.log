@@ -1,4 +1,4 @@
-timestamp: 2021-05-17T12:03:17.275029
+timestamp: 2021-06-02T22:14:38.442170
 CREATE TABLE "py4web_session"(
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "rkey" CHAR(512),
@@ -8,7 +8,7 @@ CREATE TABLE "py4web_session"(
     "expires_on" TIMESTAMP
 );
 success!
-timestamp: 2021-05-17T12:03:17.281509
+timestamp: 2021-06-02T22:14:38.449780
 CREATE TABLE "auth_user"(
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "username" CHAR(512) UNIQUE,
@@ -22,14 +22,27 @@ CREATE TABLE "auth_user"(
     "past_passwords_hash" TEXT
 );
 success!
-timestamp: 2021-05-17T12:03:17.284354
+timestamp: 2021-06-02T22:14:38.453428
 CREATE TABLE "auth_user_tag_groups"(
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "path" CHAR(512),
     "record_id" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  
 );
 success!
-timestamp: 2021-05-17T12:03:17.437049
+timestamp: 2021-06-02T22:14:38.493532
+CREATE TABLE "profile"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
+    "username" CHAR(512),
+    "file_name" CHAR(512),
+    "file_type" CHAR(512),
+    "file_date" CHAR(512),
+    "file_path" CHAR(512),
+    "file_size" INTEGER,
+    "confirmed" CHAR(1)
+);
+success!
+timestamp: 2021-06-02T22:14:38.495427
 CREATE TABLE "post"(
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "content" CHAR(512),
@@ -38,301 +51,7 @@ CREATE TABLE "post"(
     "author_email" CHAR(512),
     "username" CHAR(512),
     "thumbs_up" TEXT,
-    "thumbs_down" TEXT
-);
-success!
-timestamp: 2021-05-25T17:33:22.680248
-ALTER TABLE "post" ADD "picture" CHAR(512);
-success!
-timestamp: 2021-05-25T17:43:39.246206
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "picture" CHAR(512)
-);
-success!
-success!
-timestamp: 2021-05-25T18:01:35.140024
-ALTER TABLE "profile" ADD "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ;
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-25T19:14:29.045828
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" CHAR(512),
-    "picture" TEXT
-);
-success!
-success!
-success!
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-25T19:15:59.488754
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" CHAR(512),
-    "picture" TEXT
-);
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-25T19:31:56.079221
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
-    "picture" TEXT
-);
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-DROP TABLE "post";
-success!
-timestamp: 2021-05-25T19:35:14.013881
-CREATE TABLE "post"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "content" CHAR(512),
-    "first_name" CHAR(512),
-    "last_name" CHAR(512),
-    "author_email" CHAR(512),
-    "username" CHAR(512),
-    "thumbs_up" TEXT,
-    "thumbs_down" TEXT
-);
-success!
-timestamp: 2021-05-25T20:07:42.713332
-ALTER TABLE "profile" ADD "username" CHAR(512);
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-25T20:12:16.200516
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
-    "username" CHAR(512),
-    "picture" TEXT
-);
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-25T20:14:44.645477
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
-    "username" CHAR(512),
-    "picture" TEXT
-);
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-25T20:39:42.793671
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
-    "username" CHAR(512),
-    "picture" TEXT
-);
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-25T20:48:35.319276
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
-    "username" CHAR(512),
-    "picture" TEXT
-);
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-25T20:49:25.565131
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
-    "username" CHAR(512),
-    "picture" TEXT
-);
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-25T20:51:01.918998
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
-    "username" CHAR(512),
-    "picture" TEXT
-);
-success!
-timestamp: 2021-05-27T17:29:28.212784
-ALTER TABLE "profile" ADD "file_name" CHAR(512);
-timestamp: 2021-05-27T17:29:28.218579
-ALTER TABLE "profile" ADD "file_type" CHAR(512);
-timestamp: 2021-05-27T17:29:28.220281
-ALTER TABLE "profile" ADD "file_date" CHAR(512);
-timestamp: 2021-05-27T17:29:28.221561
-ALTER TABLE "profile" ADD "file_path" CHAR(512);
-timestamp: 2021-05-27T17:29:28.222931
-ALTER TABLE "profile" ADD "file_size" INTEGER;
-timestamp: 2021-05-27T17:29:28.224339
-ALTER TABLE "profile" ADD "confirmed" CHAR(1);
-success!
-success!
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-27T18:24:14.015131
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
-    "username" CHAR(512),
-    "picture" TEXT,
-    "file_name" CHAR(512),
-    "file_type" CHAR(512),
-    "file_date" CHAR(512),
-    "file_path" CHAR(512),
-    "file_size" INTEGER,
-    "confirmed" CHAR(1)
-);
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-27T19:38:13.403154
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
-    "username" CHAR(512),
-    "file_name" CHAR(512),
-    "file_type" CHAR(512),
-    "file_date" CHAR(512),
-    "file_path" CHAR(512),
-    "file_size" INTEGER,
-    "confirmed" CHAR(1)
-);
-success!
-DROP TABLE "profile";
-success!
-timestamp: 2021-05-27T19:38:40.522485
-CREATE TABLE "profile"(
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
-    "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
-    "username" CHAR(512),
-    "file_name" CHAR(512),
-    "file_type" CHAR(512),
-    "file_date" CHAR(512),
-    "file_path" CHAR(512),
-    "file_size" INTEGER,
-    "confirmed" CHAR(1)
+    "thumbs_down" TEXT,
+    "datetime" TIMESTAMP
 );
 success!
