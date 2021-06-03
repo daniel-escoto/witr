@@ -203,9 +203,9 @@ def get_vote_names():
 
 
 
-@action('view/<username>', method=["GET"])
-@action.uses(url_signer, auth, db, 'view.html')
-def view(username):
+@action('view_profile/<username>', method=["GET"])
+@action.uses(url_signer, auth, db, 'view_profile.html')
+def view_profile(username):
     user = auth.get_user() or redirect(URL('auth/login'))
     return dict(
         load_user_info_url = URL('load_user_info', username, signer=url_signer),

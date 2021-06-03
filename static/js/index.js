@@ -297,7 +297,7 @@ let init = (app) => {
   // };
 
   app.view_profile = function (username) {
-    window.location.href = `../view/${username}`;
+    window.location.href = `../view_profile/${username}`;
   };
 
   // This contains all the methods.

@@ -55,3 +55,15 @@ CREATE TABLE "post"(
     "datetime" TIMESTAMP
 );
 success!
+timestamp: 2021-06-03T13:58:57.157051
+CREATE TABLE "comment"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "parent_post" INTEGER REFERENCES "post" ("id") ON DELETE CASCADE  ,
+    "content" CHAR(512),
+    "author_email" CHAR(512),
+    "username" CHAR(512),
+    "thumbs_up" TEXT,
+    "thumbs_down" TEXT,
+    "datetime" TIMESTAMP
+);
+success!

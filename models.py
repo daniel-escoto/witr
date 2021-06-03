@@ -43,5 +43,15 @@ db.define_table('post',
                 Field('datetime', 'datetime'),
 )
 
+db.define_table('comment',
+                Field('parent_post', 'reference post'),
+                Field('content'),
+                Field('author_email'),
+                Field('username'),
+                Field('thumbs_up', 'list:string'),
+                Field('thumbs_down', 'list:string'),
+                Field('datetime', 'datetime'),
+                )
+
 
 db.commit()
