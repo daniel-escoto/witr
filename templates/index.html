@@ -153,6 +153,7 @@
                 <!-- blue icon -->
                 <span
                   v-if="r.thumbs_up.length > r.thumbs_down.length"
+                  @click="view_comments(r.id)"
                   class="fa-layers fa-lg fa-fw"
                 >
                   <i class="fas fa-info-circle has-text-info"></i>
@@ -160,12 +161,17 @@
                 <!-- red icon -->
                 <span
                   v-else-if="r.thumbs_up.length < r.thumbs_down.length"
+                  @click="view_comments(r.id)"
                   class="fa-layers fa-lg fa-fw"
                 >
                   <i class="fas fa-info-circle has-text-danger"></i>
                 </span>
                 <!-- grey icon -->
-                <span v-else class="fa-layers fa-lg fa-fw">
+                <span
+                  v-else
+                  @click="view_comments(r.id)"
+                  class="fa-layers fa-lg fa-fw"
+                >
                   <i class="fas fa-info-circle has-text-grey"></i>
                 </span>
               </div>

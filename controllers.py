@@ -246,8 +246,62 @@ def load_user_info(username):
         picture= prof
     )
     
-    
-    
+@action('view_comments/<post_id>', method=["GET"])
+@action.uses(url_signer, auth, db, 'view_comments.html')
+def view_comments(post_id):
+    user = auth.get_user() or redirect(URL('auth/login'))
+    return dict(
+        # post urls
+        load_post_url = URL('load_post', post_id, signer=url_signer),
+        delete_post_url = URL('delete_post', signer=url_signer),
+        upvote_post_url = URL('upvote_post', signer=url_signer),
+        downvote_post_url = URL('downvote_post', signer=url_signer),
+        get_vote_names_url = URL('get_vote_names', signer=url_signer),
+
+        # comments urls
+        load_comments_url = URL('load_comments', post_id, signer=url_signer),
+        add_comment_url = URL('add_comment', signer=url_signer),
+        delete_comment_url = URL('delete_comment', signer=url_signer),
+        upvote_comment_url = URL('upvote_comment', signer=url_signer),
+        downvote_comment_url = URL('downvote_comment', signer=url_signer),
+    )
+
+# TODO
+@action('load_post/<post_id>', method=["GET"])
+@action.uses(url_signer.verify(), db)
+def load_post(post_id):
+    pass
+
+# TODO
+@action('load_comments/<post_id>', method=["GET"])
+@action.uses(url_signer.verify(), db)
+def load_comments(post_id):
+    pass
+
+# TODO
+@action('add_comment', method=["POST"])
+@action.uses(url_signer.verify(), db)
+def add_comment():
+    pass
+
+# TODO
+@action('delete_comment')
+@action.uses(url_signer.verify(), db)
+def delete_comment():
+    pass
+
+# TODO
+@action('upvote_comment')
+@action.uses(url_signer.verify(), db)
+def upvote_comment():
+    pass
+
+# TODO
+@action('downvote_comment')
+@action.uses(url_signer.verify(), db)
+def downvote_comment():
+    pass
+
 #
 # GCS CODE
 #

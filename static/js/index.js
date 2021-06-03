@@ -300,6 +300,10 @@ let init = (app) => {
     window.location.href = `../view_profile/${username}`;
   };
 
+  app.view_comments = function (comments_id) {
+    window.location.href = `../view_comment/${comments_id}`;
+  };
+
   // This contains all the methods.
   app.methods = {
     // Complete as you see fit.
@@ -313,6 +317,7 @@ let init = (app) => {
     // show_downvotes: app.show_downvotes,
     // hide_votes: app.hide_votes,
     view_profile: app.view_profile,
+    view_comments: app.view_comments,
   };
 
   // This creates the Vue instance.
@@ -335,6 +340,7 @@ let init = (app) => {
       });
       app.vue.email = response.data.email;
       app.vue.sort_option = "Most Recent";
+      console.log(app.vue.rows);
     });
   };
 
