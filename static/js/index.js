@@ -11,18 +11,131 @@ function removeItem(array, item) {
   }
 }
 
+function ago(v) {
+  v = 0 | ((Date.now() - v) / 1e3);
+  var a,
+    b = {
+      second: 60,
+      minute: 60,
+      hour: 24,
+      day: 7,
+      week: 4.35,
+      month: 12,
+      year: 1e4,
+    },
+    c;
+  for (a in b) {
+    c = v % b[a];
+    if (!(v = 0 | (v / b[a]))) return c + " " + (c - 1 ? a + "s" : a);
+  }
+}
+
+function pad(n) {
+  return n < 10 ? "0" + n : n;
+}
+
+// hour:minute AM/PM · Month Day, Year
+function displayTimeDate(timeDateString) {
+  let date = new Date(timeDateString);
+  let hour = date.getHours();
+  let minute = date.getMinutes();
+  let mid = "AM";
+
+  if (hour > 12) {
+    mid = "PM";
+    hour -= 12;
+  } else if (hour === 0) {
+    hour = 12;
+  }
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  let month = monthNames[date.getMonth()];
+  let day = date.getDate();
+  let year = date.getFullYear();
+  return `${pad(hour)}:${pad(minute)} ${mid} · ${month} ${day}, ${year}`;
+}
+
 // Given an empty app object, initializes it filling its attributes,
 // creates a Vue instance, and then initializes the Vue instance.
 let init = (app) => {
   // This is the Vue data.
   app.data = {
     // Complete as you see fit.
+    sort_option: "",
     add_mode: false,
     add_content: "",
     rows: [],
     email: "",
-    hover_idx: -1,
-    vote_status: "",
+  };
+
+  app.watch = {
+    sort_option: function () {
+      console.log(app.vue.rows);
+      if (this.sort_option === "Most Upvotes") {
+        let sortedArray = this.rows.sort(function (a, b) {
+          let a_net_thumbs_up = a.thumbs_up.length - a.thumbs_down.length;
+          let b_net_thumbs_up = b.thumbs_up.length - b.thumbs_down.length;
+
+          return b_net_thumbs_up - a_net_thumbs_up;
+        });
+        app.vue.rows = app.enumerate(sortedArray);
+        return;
+      } else if (this.sort_option === "Most Downvotes") {
+        let sortedArray = this.rows.sort(function (a, b) {
+          let a_net_thumbs_down = a.thumbs_down.length - a.thumbs_up.length;
+          let b_net_thumbs_down = b.thumbs_down.length - b.thumbs_up.length;
+
+          return b_net_thumbs_down - a_net_thumbs_down;
+        });
+        app.vue.rows = app.enumerate(sortedArray);
+        return;
+      } else if (this.sort_option === "Most Votes") {
+        let sortedArray = this.rows.sort(function (a, b) {
+          let a_vote_count = a.thumbs_up.length + a.thumbs_down.length;
+          let b_vote_count = b.thumbs_up.length + b.thumbs_down.length;
+
+          return b_vote_count - a_vote_count;
+        });
+        app.vue.rows = app.enumerate(sortedArray);
+        return;
+      } else if (this.sort_option === "Most Controversial") {
+        let sortedArray = this.rows.sort(function (a, b) {
+          let a_vote_diff = Math.abs(a.thumbs_up.length - a.thumbs_down.length);
+          let b_vote_diff = Math.abs(b.thumbs_up.length - b.thumbs_down.length);
+
+          return a_vote_diff - b_vote_diff;
+        });
+        app.vue.rows = app.enumerate(sortedArray);
+        return;
+      } else {
+        // let sortedArray = this.rows.slice().reverse();
+        let sortedArray = this.rows.sort(function (a, b) {
+          if (a.datetime < b.datetime) {
+            return 1;
+          } else if (a.datetime > b.datetime) {
+            return -1;
+          } else {
+            return 0;
+          }
+        });
+        app.vue.rows = app.enumerate(sortedArray);
+        return;
+      }
+    },
   };
 
   app.enumerate = (a) => {
@@ -51,10 +164,27 @@ let init = (app) => {
           username: response.data.username,
           thumbs_up: response.data.thumbs_up,
           thumbs_down: response.data.thumbs_down,
+          datetime: response.data.datetime,
+          display_datetime: `${ago(
+            new Date(response.data.datetime).getTime()
+          )} ago`,
         });
-        app.enumerate(app.vue.rows);
         app.reset_form();
         app.set_add_post(false);
+        if (app.vue.sort_option === "Most Recent") {
+          app.vue.rows.sort(function (a, b) {
+            if (a.datetime < b.datetime) {
+              return 1;
+            } else if (a.datetime > b.datetime) {
+              return -1;
+            } else {
+              return 0;
+            }
+          });
+        } else {
+          app.vue.sort_option = "Most Recent";
+        }
+        app.enumerate(app.vue.rows);
       });
   };
 
@@ -119,52 +249,52 @@ let init = (app) => {
     });
   };
 
-  app.show_upvotes = function (row_idx) {
-    let new_status = "";
+  // app.show_upvotes = function (row_idx) {
+  //   let new_status = "";
 
-    let vote_list = app.vue.rows[row_idx].thumbs_up.toString();
-    axios
-      .get(get_vote_names_url, { params: { vote_list: vote_list } })
-      .then(function (response) {
-        let names = response.data["name_string"].split(",");
-        if (names.length > 1 || names[0] !== "") {
-          new_status += "Liked by ";
-        }
-        for (let i = 0; i < names.length - 1; i++) {
-          new_status += names[i] + ", ";
-        }
-        new_status += names[names.length - 1];
+  //   let vote_list = app.vue.rows[row_idx].thumbs_up.toString();
+  //   axios
+  //     .get(get_vote_names_url, { params: { vote_list: vote_list } })
+  //     .then(function (response) {
+  //       let names = response.data["name_string"].split(",");
+  //       if (names.length > 1 || names[0] !== "") {
+  //         new_status += "Liked by ";
+  //       }
+  //       for (let i = 0; i < names.length - 1; i++) {
+  //         new_status += names[i] + ", ";
+  //       }
+  //       new_status += names[names.length - 1];
 
-        app.vue.vote_status = new_status;
-        app.vue.hover_idx = row_idx;
-      });
-  };
+  //       app.vue.vote_status = new_status;
+  //       app.vue.hover_idx = row_idx;
+  //     });
+  // };
 
-  app.show_downvotes = function (row_idx) {
-    let new_status = "";
+  // app.show_downvotes = function (row_idx) {
+  //   let new_status = "";
 
-    let vote_list = app.vue.rows[row_idx].thumbs_down.toString();
-    axios
-      .get(get_vote_names_url, { params: { vote_list: vote_list } })
-      .then(function (response) {
-        let names = response.data["name_string"].split(",");
+  //   let vote_list = app.vue.rows[row_idx].thumbs_down.toString();
+  //   axios
+  //     .get(get_vote_names_url, { params: { vote_list: vote_list } })
+  //     .then(function (response) {
+  //       let names = response.data["name_string"].split(",");
 
-        if (names.length > 1 || names[0] !== "") {
-          new_status += "Disliked by ";
-        }
-        for (let i = 0; i < names.length - 1; i++) {
-          new_status += names[i] + ", ";
-        }
-        new_status += names[names.length - 1];
+  //       if (names.length > 1 || names[0] !== "") {
+  //         new_status += "Disliked by ";
+  //       }
+  //       for (let i = 0; i < names.length - 1; i++) {
+  //         new_status += names[i] + ", ";
+  //       }
+  //       new_status += names[names.length - 1];
 
-        app.vue.vote_status = new_status;
-        app.vue.hover_idx = row_idx;
-      });
-  };
+  //       app.vue.vote_status = new_status;
+  //       app.vue.hover_idx = row_idx;
+  //     });
+  // };
 
-  app.hide_votes = function () {
-    app.vue.hover_idx = -1;
-  };
+  // app.hide_votes = function () {
+  //   app.vue.hover_idx = -1;
+  // };
 
   app.view_profile = function (username) {
     window.location.href = `../view/${username}`;
@@ -179,9 +309,9 @@ let init = (app) => {
     delete_post: app.delete_post,
     upvote_post: app.upvote_post,
     downvote_post: app.downvote_post,
-    show_upvotes: app.show_upvotes,
-    show_downvotes: app.show_downvotes,
-    hide_votes: app.hide_votes,
+    // show_upvotes: app.show_upvotes,
+    // show_downvotes: app.show_downvotes,
+    // hide_votes: app.hide_votes,
     view_profile: app.view_profile,
   };
 
@@ -189,6 +319,7 @@ let init = (app) => {
   app.vue = new Vue({
     el: "#vue-target",
     data: app.data,
+    watch: app.watch,
     methods: app.methods,
   });
 
@@ -198,7 +329,12 @@ let init = (app) => {
     // Typically this is a server GET call to load the data.
     axios.get(load_posts_url).then(function (response) {
       app.vue.rows = app.enumerate(response.data.rows);
+      app.vue.rows.forEach(function (row) {
+        let d = new Date(row.datetime);
+        row.display_datetime = `${ago(d.getTime())} ago`;
+      });
       app.vue.email = response.data.email;
+      app.vue.sort_option = "Most Recent";
     });
   };
 

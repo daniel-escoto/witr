@@ -95,6 +95,7 @@ def add_post():
     username = user.get('username')
     thumbs_up = []
     thumbs_down = []
+    now = datetime.datetime.now()
     id = db.post.insert(
         content=request.json.get('content'),
         first_name=first_name,
@@ -103,6 +104,7 @@ def add_post():
         username=username,
         thumbs_up=thumbs_up,
         thumbs_down=thumbs_down,
+        datetime=now,
     )
 
     return dict(id=id,
@@ -111,7 +113,8 @@ def add_post():
                 email=email,
                 username=username,
                 thumbs_up=thumbs_up,
-                thumbs_down=thumbs_down)
+                thumbs_down=thumbs_down,
+                datetime=now,)
 
 @action('delete_post')
 @action.uses(url_signer.verify(), db)
