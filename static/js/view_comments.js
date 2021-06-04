@@ -11,6 +11,25 @@ function removeItem(array, item) {
   }
 }
 
+function ago(v) {
+  v = 0 | ((Date.now() - v) / 1e3);
+  var a,
+    b = {
+      second: 60,
+      minute: 60,
+      hour: 24,
+      day: 7,
+      week: 4.35,
+      month: 12,
+      year: 1e4,
+    },
+    c;
+  for (a in b) {
+    c = v % b[a];
+    if (!(v = 0 | (v / b[a]))) return c + " " + (c - 1 ? a + "s" : a);
+  }
+}
+
 function pad(n) {
   return n < 10 ? "0" + n : n;
 }
@@ -133,7 +152,13 @@ let init = (app) => {
       .get(delete_post_url, { params: { id: id } })
       .then(function (response) {
         // TODO what about when the post has comments
-        window.location.href = `../index`;
+        axios
+          .get(delete_all_comments_url, {
+            params: { parent_post: id },
+          })
+          .then(function (response) {
+            window.location.href = `../index`;
+          });
       });
   };
 
@@ -174,8 +199,89 @@ let init = (app) => {
         content: app.vue.add_content,
       })
       .then(function (response) {
+        app.vue.rows.push({
+          id: response.data.id,
+          parent_id: app.vue.post.id,
+          content: app.vue.add_content,
+          author_email: response.data.email,
+          username: response.data.username,
+          thumbs_up: response.data.thumbs_up,
+          thumbs_down: response.data.thumbs_down,
+          datetime: response.data.datetime,
+          display_datetime: `${ago(
+            new Date(response.data.datetime).getTime()
+          )} ago`,
+        });
+
         app.vue.add_content = "";
+        if (app.vue.sort_option === "Most Recent") {
+          app.vue.rows.sort(function (a, b) {
+            if (a.datetime < b.datetime) {
+              return 1;
+            } else if (a.datetime > b.datetime) {
+              return -1;
+            } else {
+              return 0;
+            }
+          });
+        } else {
+          app.vue.sort_option = "Most Recent";
+        }
+        app.enumerate(app.vue.rows);
       });
+  };
+
+  app.delete_comment = function (row_idx) {
+    let id = app.vue.rows[row_idx].id;
+    axios
+      .get(delete_comment_url, { params: { id: id } })
+      .then(function (response) {
+        for (let i = 0; i < app.vue.rows.length; i++) {
+          if (app.vue.rows[i].id === id) {
+            app.vue.rows.splice(i, 1);
+            app.enumerate(app.vue.rows);
+            break;
+          }
+        }
+      });
+  };
+
+  app.upvote_comment = function (row_idx) {
+    let id = app.vue.rows[row_idx].id;
+
+    axios.post(upvote_comment_url, { id: id }).then(function (response) {
+      for (let i = 0; i < app.vue.rows.length; i++) {
+        if (app.vue.rows[i].id === id) {
+          if (response.data === "in") {
+            app.vue.rows[i].thumbs_up.push(app.vue.email);
+          } else if (response.data === "in_and_flip") {
+            removeItem(app.vue.rows[i].thumbs_down, app.vue.email);
+            app.vue.rows[i].thumbs_up.push(app.vue.email);
+          } else {
+            removeItem(app.vue.rows[i].thumbs_up, app.vue.email);
+          }
+        }
+      }
+    });
+  };
+
+  app.downvote_comment = function (row_idx) {
+    let id = app.vue.rows[row_idx].id;
+
+    axios.post(downvote_comment_url, { id: id }).then(function (response) {
+      for (let i = 0; i < app.vue.rows.length; i++) {
+        if (app.vue.rows[i].id === id) {
+          if (response.data === "in") {
+            app.vue.rows[i].thumbs_down.push(app.vue.email);
+          } else if (response.data === "in_and_flip") {
+            removeItem(app.vue.rows[i].thumbs_up, app.vue.email);
+            app.vue.rows[i].thumbs_down.push(app.vue.email);
+          } else {
+            removeItem(app.vue.rows[i].thumbs_down, app.vue.email);
+          }
+        }
+      }
+    });
   };
 
   app.methods = {
@@ -185,8 +291,9 @@ let init = (app) => {
     downvote_post: app.downvote_post,
 
     add_comment: app.add_comment,
-    reset_form: app.reset_form,
-    set_add_comment: app.set_add_comment,
+    delete_comment: app.delete_comment,
+    upvote_comment: app.upvote_comment,
+    downvote_comment: app.downvote_comment,
   };
 
   app.vue = new Vue({
@@ -198,12 +305,15 @@ let init = (app) => {
 
   app.init = () => {
     axios.get(load_post_url).then(function (response) {
-      // app.vue.rows = app.enumerate(response.data.rows);
+      app.vue.rows = app.enumerate(response.data.rows);
+      app.vue.rows.forEach(function (row) {
+        let d = new Date(row.datetime);
+        row.display_datetime = `${ago(d.getTime())} ago`;
+      });
       app.vue.post = response.data.post;
       app.vue.post.display_datetime = displayTimeDate(app.vue.post.datetime);
       app.vue.email = response.data.email;
       app.vue.sort_option = "Most Recent";
-      console.log(app.vue.post);
     });
   };
 

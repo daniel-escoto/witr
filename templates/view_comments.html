@@ -21,6 +21,13 @@
           <p>{{post.content}}</p>
         </div>
 
+        <!-- post name -->
+        <div class="tile is-child">
+          <a @click="view_profile(post.username)" class="has-text-grey">
+            {{post.username}}</a
+          >
+        </div>
+
         <!-- buttons -->
         <div class="tile is-child">
           <nav class="level">
@@ -146,7 +153,108 @@
     <p class="content has-text-weight-bold">Comments</p>
   </div>
 
-  <!-- <div v-for="r in rows" class="container block"></div> -->
+  <div v-for="r in rows" class="container block">
+    <!-- post -->
+    <div class="tile is-ancestor has-background-light">
+      <div class="tile is-vertical pr-6 py-5 is-parent">
+        <!-- post text -->
+        <div class="tile is-child">
+          <p>{{r.content}}</p>
+        </div>
+
+        <!-- post name -->
+        <div class="tile is-child">
+          <a @click="view_profile(r.username)" class="has-text-grey">
+            {{r.username}}</a
+          >
+        </div>
+
+        <!-- buttons -->
+        <div class="tile is-child">
+          <nav class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <!-- thumbs up (highlighted) -->
+                <span
+                  v-if="r.thumbs_up.includes(email)"
+                  @click="upvote_comment(r._idx)"
+                  class="icon is-medium has-text-info"
+                >
+                  <i class="fas fa-thumbs-up fa-lg fa-flip-horizontal"></i>
+                </span>
+                <!-- thumbs up (un-highlighted) -->
+                <span
+                  v-else
+                  @click="upvote_comment(r._idx)"
+                  class="icon is-medium has-text-info"
+                >
+                  <i class="far fa-thumbs-up fa-lg fa-flip-horizontal"></i>
+                </span>
+
+                <!-- blue count -->
+                <span
+                  v-if="r.thumbs_up.length > r.thumbs_down.length"
+                  class="has-text-info"
+                >
+                  <div class="content">
+                    {{`+${r.thumbs_up.length - r.thumbs_down.length}`}}
+                  </div>
+                </span>
+                <!-- red count -->
+                <span
+                  v-else-if="r.thumbs_up.length < r.thumbs_down.length"
+                  class="has-text-danger"
+                >
+                  <div class="content">
+                    {{r.thumbs_up.length - r.thumbs_down.length}}
+                  </div></span
+                >
+                <!-- grey count -->
+                <span v-else class="has-text-grey">
+                  <div class="content">
+                    {{r.thumbs_up.length - r.thumbs_down.length}}
+                  </div>
+                </span>
+
+                <!-- thumbs down (highlighted)  -->
+                <span
+                  v-if="r.thumbs_down.includes(email)"
+                  @click="downvote_comment(r._idx)"
+                  class="icon is-medium has-text-danger"
+                >
+                  <i class="fas fa-thumbs-down fa-lg"></i>
+                </span>
+                <!-- thumbs down (un-highlighted)  -->
+                <span
+                  v-else
+                  @click="downvote_comment(r._idx)"
+                  class="icon is-medium has-text-danger"
+                >
+                  <i class="far fa-thumbs-down fa-lg"></i>
+                </span>
+              </div>
+              <div class="level-item">
+                <span class="content has-text-grey"
+                  >{{r.display_datetime}}</span
+                >
+              </div>
+            </div>
+            <div v-if="r.author_email === email" class="level-right">
+              <div class="level-item">
+                <!-- trash button -->
+                <span
+                  @click="delete_comment(r._idx)"
+                  class="icon is-medium has-text-danger"
+                >
+                  <i class="fas fa-trash-alt fa-lg"></i>
+                </span>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 [[block page_scripts]]
@@ -159,6 +267,7 @@
   let load_comments_url = "[[=XML(load_comments_url)]]";
   let add_comment_url = "[[=XML(add_comment_url)]]";
   let delete_comment_url = "[[=XML(delete_comment_url)]]";
+  let delete_all_comments_url = "[[=XML(delete_all_comments_url)]]";
   let upvote_comment_url = "[[=XML(upvote_comment_url)]]";
   let downvote_comment_url = "[[=XML(downvote_comment_url)]]";
 </script>

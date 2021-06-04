@@ -144,8 +144,6 @@ def upvote_post():
             downvote_list.remove(email)
             status = "in_and_flip"
 
-    
-
     db(db.post.id == id).update(
         thumbs_up=upvote_list,
         thumbs_down=downvote_list,
@@ -262,6 +260,7 @@ def view_comments(post_id):
         load_comments_url = URL('load_comments', post_id, signer=url_signer),
         add_comment_url = URL('add_comment', signer=url_signer),
         delete_comment_url = URL('delete_comment', signer=url_signer),
+        delete_all_comments_url = URL('delete_all_comments', signer=url_signer),
         upvote_comment_url = URL('upvote_comment', signer=url_signer),
         downvote_comment_url = URL('downvote_comment', signer=url_signer),
     )
@@ -273,7 +272,7 @@ def load_post(post_id):
     user = auth.get_user() or redirect(URL('auth/login'))
     return dict(post=db(db.post.id == post_id).select().as_list()[0],
                 email=user.get("email"),
-                rows=db(db.comment.post_id == post_id).select().as_list(),)
+                rows=db(db.comment.parent_post == post_id).select().as_list(),)
 
 # TODO
 @action('load_comments/<post_id>', method=["GET"])
@@ -286,8 +285,6 @@ def load_comments(post_id):
 @action.uses(url_signer.verify(), db)
 def add_comment():
     user = auth.get_user() or redirect(URL('auth/login'))
-    print("helllo")
-    print(request.json)
 
     email = user.get('email')
     username = user.get('username')
@@ -312,23 +309,81 @@ def add_comment():
                 datetime=now,)
 
 
-# TODO
 @action('delete_comment')
 @action.uses(url_signer.verify(), db)
 def delete_comment():
-    pass
+    id = request.params.get('id')
+    assert id is not None
+    db(db.comment.id == id).delete()
+    return "ok"
+
+@action('delete_all_comments')
+@action.uses(url_signer.verify(), db)
+def delete_all_comments():
+    # id = request.params.get('id')
+    # assert id is not None
+    # db(db.comment.id == id).delete()
+
+    parent_post = request.params.get('parent_post')
+    assert parent_post is not None
+    db(db.comment.parent_post == parent_post).delete()
+    return "ok"
 
 # TODO
-@action('upvote_comment')
+@action('upvote_comment', method="POST")
 @action.uses(url_signer.verify(), db)
 def upvote_comment():
-    pass
+    user = auth.get_user() or redirect(URL('auth/login'))
+    email = user.get('email')
+    id = request.json.get('id')
+    assert id is not None
+    upvote_list = (db(db.comment.id == id)).select().first().thumbs_up
+    downvote_list = (db(db.comment.id == id)).select().first().thumbs_down
+
+    if email in upvote_list:
+        upvote_list.remove(email)
+        status = "out"
+    else:
+        upvote_list.append(email)
+        status = "in"
+        if email in downvote_list:
+            downvote_list.remove(email)
+            status = "in_and_flip"
+
+    db(db.comment.id == id).update(
+        thumbs_up=upvote_list,
+        thumbs_down=downvote_list,
+    )
+
+    return status
 
 # TODO
-@action('downvote_comment')
+@action('downvote_comment', method="POST")
 @action.uses(url_signer.verify(), db)
 def downvote_comment():
-    pass
+    user = auth.get_user() or redirect(URL('auth/login'))
+    email = user.get('email')
+    id = request.json.get('id')
+    assert id is not None
+    upvote_list = (db(db.comment.id == id)).select().first().thumbs_up
+    downvote_list = (db(db.comment.id == id)).select().first().thumbs_down
+
+    if email in downvote_list:
+        downvote_list.remove(email)
+        status = "out"
+    else:
+        downvote_list.append(email)
+        status = "in"
+        if email in upvote_list:
+            upvote_list.remove(email)
+            status = "in_and_flip"
+
+    db(db.comment.id == id).update(
+        thumbs_up=upvote_list,
+        thumbs_down=downvote_list,
+    )
+
+    return status
 
 #
 # GCS CODE
