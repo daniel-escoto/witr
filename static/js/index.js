@@ -84,7 +84,6 @@ let init = (app) => {
 
   app.watch = {
     sort_option: function () {
-      console.log(app.vue.rows);
       if (this.sort_option === "Most Upvotes") {
         let sortedArray = this.rows.sort(function (a, b) {
           let a_net_thumbs_up = a.thumbs_up.length - a.thumbs_down.length;
@@ -301,7 +300,7 @@ let init = (app) => {
   };
 
   app.view_comments = function (comments_id) {
-    window.location.href = `../view_comment/${comments_id}`;
+    window.location.href = `../view_comments/${comments_id}`;
   };
 
   // This contains all the methods.

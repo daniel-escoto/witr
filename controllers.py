@@ -270,7 +270,9 @@ def view_comments(post_id):
 @action('load_post/<post_id>', method=["GET"])
 @action.uses(url_signer.verify(), db)
 def load_post(post_id):
-    pass
+    user = auth.get_user() or redirect(URL('auth/login'))
+    return dict(post=db(db.post.id == post_id).select().as_list()[0],
+                email=user.get("email"))
 
 # TODO
 @action('load_comments/<post_id>', method=["GET"])
