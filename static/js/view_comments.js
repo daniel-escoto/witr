@@ -167,15 +167,26 @@ let init = (app) => {
     });
   };
 
+  app.add_comment = function () {
+    axios
+      .post(add_comment_url, {
+        post_id: app.vue.post.id,
+        content: app.vue.add_content,
+      })
+      .then(function (response) {
+        app.vue.add_content = "";
+      });
+  };
+
   app.methods = {
     view_profile: app.view_profile,
     delete_post: app.delete_post,
     upvote_post: app.upvote_post,
     downvote_post: app.downvote_post,
 
-    add_post: app.add_post,
+    add_comment: app.add_comment,
     reset_form: app.reset_form,
-    set_add_post: app.set_add_post,
+    set_add_comment: app.set_add_comment,
   };
 
   app.vue = new Vue({
@@ -187,6 +198,7 @@ let init = (app) => {
 
   app.init = () => {
     axios.get(load_post_url).then(function (response) {
+      // app.vue.rows = app.enumerate(response.data.rows);
       app.vue.post = response.data.post;
       app.vue.post.display_datetime = displayTimeDate(app.vue.post.datetime);
       app.vue.email = response.data.email;

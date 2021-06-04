@@ -272,7 +272,8 @@ def view_comments(post_id):
 def load_post(post_id):
     user = auth.get_user() or redirect(URL('auth/login'))
     return dict(post=db(db.post.id == post_id).select().as_list()[0],
-                email=user.get("email"))
+                email=user.get("email"),
+                rows=db(db.comment.post_id == post_id).select().as_list(),)
 
 # TODO
 @action('load_comments/<post_id>', method=["GET"])
@@ -284,7 +285,32 @@ def load_comments(post_id):
 @action('add_comment', method=["POST"])
 @action.uses(url_signer.verify(), db)
 def add_comment():
-    pass
+    user = auth.get_user() or redirect(URL('auth/login'))
+    print("helllo")
+    print(request.json)
+
+    email = user.get('email')
+    username = user.get('username')
+    thumbs_up = []
+    thumbs_down = []
+    now = datetime.datetime.now()
+    id = db.comment.insert(
+        parent_post=request.json.get('post_id'),
+        content=request.json.get('content'),
+        author_email=email,
+        username=username,
+        thumbs_up=thumbs_up,
+        thumbs_down=thumbs_down,
+        datetime=now,
+    )
+
+    return dict(id=id,
+                email=email,
+                username=username,
+                thumbs_up=thumbs_up,
+                thumbs_down=thumbs_down,
+                datetime=now,)
+
 
 # TODO
 @action('delete_comment')
