@@ -4,8 +4,10 @@
   [v-cloak] {
     display: none;
   }
+  img{
+      border-radius: 50%;
+  }
 </style>
-
 <div class="section" id="vue-target" v-cloak>
   <div class="container block">
     <h1 class="title">{{username}}'s Profile Page</h1>
@@ -25,15 +27,11 @@
                               
                               
                               
-                            <div v-if = "file_path">
-                              <figure class="image is-128x128">
-                                <img class= "is-rounded" :src="picture" />
-                              </figure>
+                            <div v-if = "picture">
+                                <img width="150" alt="Avatar" :src="picture"/>
                             </div>
                             <div v-else>
-                                <figure class="image is-128x128">
-                                  <img class= "is-rounded" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" />
-                                </figure>
+                                  <img width="150" alt="Avatar" src="https://storage.googleapis.com/witr-uploads/blank-profile-picture-973460_960_720.png" />
                             </div>
                             <p class="control py-1">
                               <div class="file is-info">
@@ -61,15 +59,11 @@
                             </p>
                           </div>
                           <div v-else>
-                            <div v-if = "file_path">
-                              <figure class="image is-128x128">
-                                <img class= "is-rounded" :src="picture" />
-                              </figure>
+                            <div v-if = "picture">
+                                <img width="150" alt="Avatar" :src="picture" />
                             </div>
                             <div v-else>
-                                <figure class="image is-128x128">
-                                  <img class= "is-rounded" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" />
-                                </figure>
+                                  <img width="150" alt="Avatar" src="https://storage.googleapis.com/witr-uploads/blank-profile-picture-973460_960_720.png" />
                             </div>
                           </div>
 
@@ -78,7 +72,8 @@
                         <p class="title is-4">{{full_name}}</p>
                         <p class="subtitle is-6">{{username}}</p>
                         <div class="content">
-                                Rating Here!! (Todo)
+                                <p class="has-text-black">Rating: {{rating}}</p>
+                                <p class = "has-text-black">Reputation: {{rep}}</p>
                         </div>
                       </div>
                     </div>
@@ -210,5 +205,5 @@
   let notify_url = "[[=XML(notify_url)]]";
   let delete_url = "[[=XML(delete_url)]]";
 </script>
-<script src="js/view.js"></script>
+<script src="js/view_profile.js"></script>
 [[end]]

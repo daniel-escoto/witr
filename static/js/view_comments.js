@@ -69,19 +69,14 @@ function displayTimeDate(timeDateString) {
   return `${pad(hour)}:${pad(minute)} ${mid} · ${month} ${day}, ${year}`;
 }
 
-// Given an empty app object, initializes it filling its attributes,
-// creates a Vue instance, and then initializes the Vue instance.
 let init = (app) => {
-  // This is the Vue data.
   app.data = {
-    // Complete as you see fit.
+    post: {},
     sort_option: "",
-    add_mode: false,
     add_content: "",
     rows: [],
     email: "",
   };
-
   app.watch = {
     sort_option: function () {
       if (this.sort_option === "Most Upvotes") {
@@ -147,18 +142,67 @@ let init = (app) => {
     return a;
   };
 
-  // methods
-  app.add_post = function () {
+  app.view_profile = function (username) {
+    window.location.href = `../view_profile/${username}`;
+  };
+
+  app.delete_post = function () {
+    let id = app.vue.post.id;
     axios
-      .post(add_post_url, {
+      .get(delete_post_url, { params: { id: id } })
+      .then(function (response) {
+        // TODO what about when the post has comments
+        axios
+          .get(delete_all_comments_url, {
+            params: { parent_post: id },
+          })
+          .then(function (response) {
+            window.location.href = `../index`;
+          });
+      });
+  };
+
+  app.upvote_post = function () {
+    let id = app.vue.post.id;
+
+    axios.post(upvote_post_url, { id: id }).then(function (response) {
+      if (response.data === "in") {
+        app.vue.post.thumbs_up.push(app.vue.email);
+      } else if (response.data === "in_and_flip") {
+        removeItem(app.vue.post.thumbs_down, app.vue.email);
+        app.vue.post.thumbs_up.push(app.vue.email);
+      } else {
+        removeItem(app.vue.post.thumbs_up, app.vue.email);
+      }
+    });
+  };
+
+  app.downvote_post = function () {
+    let id = app.vue.post.id;
+
+    axios.post(downvote_post_url, { id: id }).then(function (response) {
+      if (response.data === "in") {
+        app.vue.post.thumbs_down.push(app.vue.email);
+      } else if (response.data === "in_and_flip") {
+        removeItem(app.vue.post.thumbs_up, app.vue.email);
+        app.vue.post.thumbs_down.push(app.vue.email);
+      } else {
+        removeItem(app.vue.post.thumbs_down, app.vue.email);
+      }
+    });
+  };
+
+  app.add_comment = function () {
+    axios
+      .post(add_comment_url, {
+        post_id: app.vue.post.id,
         content: app.vue.add_content,
       })
       .then(function (response) {
         app.vue.rows.push({
           id: response.data.id,
+          parent_id: app.vue.post.id,
           content: app.vue.add_content,
-          first_name: response.data.first_name,
-          last_name: response.data.last_name,
           author_email: response.data.email,
           username: response.data.username,
           thumbs_up: response.data.thumbs_up,
@@ -167,10 +211,9 @@ let init = (app) => {
           display_datetime: `${ago(
             new Date(response.data.datetime).getTime()
           )} ago`,
-          comment_count: 0,
         });
-        app.reset_form();
-        app.set_add_post(false);
+
+        app.vue.add_content = "";
         if (app.vue.sort_option === "Most Recent") {
           app.vue.rows.sort(function (a, b) {
             if (a.datetime < b.datetime) {
@@ -188,18 +231,10 @@ let init = (app) => {
       });
   };
 
-  app.reset_form = function () {
-    app.vue.add_content = "";
-  };
-
-  app.set_add_post = function (new_post) {
-    app.vue.add_mode = new_post;
-  };
-
-  app.delete_post = function (row_idx) {
+  app.delete_comment = function (row_idx) {
     let id = app.vue.rows[row_idx].id;
     axios
-      .get(delete_post_url, { params: { id: id } })
+      .get(delete_comment_url, { params: { id: id } })
       .then(function (response) {
         for (let i = 0; i < app.vue.rows.length; i++) {
           if (app.vue.rows[i].id === id) {
@@ -211,10 +246,10 @@ let init = (app) => {
       });
   };
 
-  app.upvote_post = function (row_idx) {
+  app.upvote_comment = function (row_idx) {
     let id = app.vue.rows[row_idx].id;
 
-    axios.post(upvote_post_url, { id: id }).then(function (response) {
+    axios.post(upvote_comment_url, { id: id }).then(function (response) {
       for (let i = 0; i < app.vue.rows.length; i++) {
         if (app.vue.rows[i].id === id) {
           if (response.data === "in") {
@@ -230,10 +265,10 @@ let init = (app) => {
     });
   };
 
-  app.downvote_post = function (row_idx) {
+  app.downvote_comment = function (row_idx) {
     let id = app.vue.rows[row_idx].id;
 
-    axios.post(downvote_post_url, { id: id }).then(function (response) {
+    axios.post(downvote_comment_url, { id: id }).then(function (response) {
       for (let i = 0; i < app.vue.rows.length; i++) {
         if (app.vue.rows[i].id === id) {
           if (response.data === "in") {
@@ -249,81 +284,18 @@ let init = (app) => {
     });
   };
 
-  // app.show_upvotes = function (row_idx) {
-  //   let new_status = "";
-
-  //   let vote_list = app.vue.rows[row_idx].thumbs_up.toString();
-  //   axios
-  //     .get(get_vote_names_url, { params: { vote_list: vote_list } })
-  //     .then(function (response) {
-  //       let names = response.data["name_string"].split(",");
-  //       if (names.length > 1 || names[0] !== "") {
-  //         new_status += "Liked by ";
-  //       }
-  //       for (let i = 0; i < names.length - 1; i++) {
-  //         new_status += names[i] + ", ";
-  //       }
-  //       new_status += names[names.length - 1];
-
-  //       app.vue.vote_status = new_status;
-  //       app.vue.hover_idx = row_idx;
-  //     });
-  // };
-
-  // app.show_downvotes = function (row_idx) {
-  //   let new_status = "";
-
-  //   let vote_list = app.vue.rows[row_idx].thumbs_down.toString();
-  //   axios
-  //     .get(get_vote_names_url, { params: { vote_list: vote_list } })
-  //     .then(function (response) {
-  //       let names = response.data["name_string"].split(",");
-
-  //       if (names.length > 1 || names[0] !== "") {
-  //         new_status += "Disliked by ";
-  //       }
-  //       for (let i = 0; i < names.length - 1; i++) {
-  //         new_status += names[i] + ", ";
-  //       }
-  //       new_status += names[names.length - 1];
-
-  //       app.vue.vote_status = new_status;
-  //       app.vue.hover_idx = row_idx;
-  //     });
-  // };
-
-  // app.hide_votes = function () {
-  //   app.vue.hover_idx = -1;
-  // };
-
-  app.view_profile = function (username) {
-    window.location.href = `../view_profile/${username}`;
-  };
-
-  app.view_comments = function (comments_id) {
-    window.location.href = `../view_comments/${comments_id}`;
-  };
-  app.view_leaderboard = function () {
-    window.location.href = `../view_leaderboard/`;
-  };
-  // This contains all the methods.
   app.methods = {
-    // Complete as you see fit.
-    add_post: app.add_post,
-    reset_form: app.reset_form,
-    set_add_post: app.set_add_post,
+    view_profile: app.view_profile,
     delete_post: app.delete_post,
     upvote_post: app.upvote_post,
     downvote_post: app.downvote_post,
-    // show_upvotes: app.show_upvotes,
-    // show_downvotes: app.show_downvotes,
-    // hide_votes: app.hide_votes,
-    view_profile: app.view_profile,
-    view_comments: app.view_comments,
-    view_leaderboard: app.view_leaderboard,
+
+    add_comment: app.add_comment,
+    delete_comment: app.delete_comment,
+    upvote_comment: app.upvote_comment,
+    downvote_comment: app.downvote_comment,
   };
 
-  // This creates the Vue instance.
   app.vue = new Vue({
     el: "#vue-target",
     data: app.data,
@@ -331,29 +303,21 @@ let init = (app) => {
     methods: app.methods,
   });
 
-  // And this initializes it.
   app.init = () => {
-    // Put here any initialization code.
-    // Typically this is a server GET call to load the data.
-    axios.get(load_posts_url).then(function (response) {
-      let comment_counts = response.data.comment_counts;
+    axios.get(load_post_url).then(function (response) {
       app.vue.rows = app.enumerate(response.data.rows);
       app.vue.rows.forEach(function (row) {
         let d = new Date(row.datetime);
         row.display_datetime = `${ago(d.getTime())} ago`;
-
-        row.comment_count = comment_counts[row.id];
       });
+      app.vue.post = response.data.post;
+      app.vue.post.display_datetime = displayTimeDate(app.vue.post.datetime);
       app.vue.email = response.data.email;
       app.vue.sort_option = "Most Recent";
-      console.log(app.vue.rows);
     });
   };
 
-  // Call to the initializer.
   app.init();
 };
 
-// This takes the (empty) app object, and initializes it,
-// putting all the code i
 init(app);

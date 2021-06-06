@@ -29,6 +29,8 @@ let init = (app) => {
     uploading: false, // upload in progress
     deleting: false, // delete in progress
     delete_confirmation: false, // Show the delete confirmation thing.
+    rating: "",
+    rep:"",
   };
   
   app.enumerate = (a) => {
@@ -209,6 +211,7 @@ let init = (app) => {
             app.vue.file_path = file_path;
             app.vue.file_size = file_size;
             app.vue.file_date = r.data.file_date;
+            app.vue.picture = r.data.picture;
         });
     }
 
@@ -253,6 +256,7 @@ let init = (app) => {
             app.vue.file_type = null;
             app.vue.file_date = null;
             app.vue.file_path = null;
+            app.vue.picture = "";
         })
     }
 
@@ -291,6 +295,8 @@ let init = (app) => {
       app.vue.full_name = response.data.full_name;
       app.vue.permission = response.data.permission;
       app.vue.picture = response.data.picture;
+      app.vue.rating = response.data.rating;
+    app.vue.rep = response.data.rep;
     });
     axios.get(load_profposts_url).then(function (response) {
       app.vue.rows = app.enumerate(response.data.rows);

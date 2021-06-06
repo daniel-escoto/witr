@@ -29,7 +29,7 @@ import json
 import os
 import traceback
 import uuid
-
+import math
 from nqgcs import NQGCS
 
 from py4web import action, request, abort, redirect, URL
@@ -68,12 +68,78 @@ def index():
         get_vote_names_url = URL('get_vote_names', signer=url_signer),
     )
 
+
+@action('view_leaderboard', method="GET")
+@action.uses(db, auth, url_signer, 'view_leaderboard.html')
+def view_leaderboard():
+    user = auth.get_user() or redirect(URL('auth/login'))
+        
+    return dict(
+        load_view_leaderboard = URL('load_view_leaderboard', signer=url_signer)
+    )
+
+
+@action('load_view_leaderboard', method="GET")
+@action.uses(db, url_signer.verify())
+def load_view_leaderboard():
+    user = auth.get_user() or redirect(URL('auth/login'))
+    newRows = [] #result [{username, avg, rep, profile pic}, ...]
+    checked = [] #history
+    thumbsup = 0
+    thumbslength = 0
+    rows = db(db.post).select().as_list()
+    for r in rows: #parse posts
+        dic = {}
+        if r['username'] not in checked: #check if we havent validated already
+            thumbsup=0
+            thumbslength=0
+            dic['username'] = r['username']
+            checked.append(r['username'])
+            rows2 = db(db.post.username == r['username']).select().as_list()
+            picture = db(db.profile.username == r['username']).select().first()
+            for ar in rows2: #record
+                thumbsup+=len(ar['thumbs_up'])
+                thumbslength+=(len(ar['thumbs_up'])+len(ar['thumbs_down']))
+                
+            #print("Thumbs up: ", thumbsup)
+            #print("Thumbs len: ", thumbslength)
+            if thumbslength == 0:
+                dic['avg'] = 0
+                dic['reputation'] = "N/A"
+            else:
+                dic['avg'] = math.floor((thumbsup/thumbslength) * 100)
+                if dic['avg'] > 50: #assign rep
+                    dic['reputation'] = "In the Right" 
+                elif dic['avg'] < 50:
+                    dic['reputation'] = "In the Wrong"
+                else: #equal
+                    dic['reputation'] = "Neutral"
+            dic['picture'] = "https://storage.googleapis.com" + picture.file_path if picture is not None else "" #picture
+            newRows.append(dic)
+            
+            
+    sorted(newRows, key = lambda i: i['avg']) # This will sort high avg to low
+    return dict(
+        lrows = newRows,
+    )  
+    
 @action('load_posts')
 @action.uses(url_signer.verify(), db)
 def load_posts():
     user = auth.get_user() or redirect(URL('auth/login'))
-    return dict(rows=db(db.post).select().as_list(),
-                email=user.get("email"),)
+
+    rows=db(db.post).select().as_list()
+    comment_counts = {}
+
+    for row in rows:
+        id = row.get("id")
+        comment_count = (len(db(db.comment.parent_post == id).select().as_list()))
+        comment_counts[id] = comment_count
+
+
+    return dict(rows=rows,
+                email=user.get("email"),
+                comment_counts=comment_counts,)
                 
                 
 @action('load_profposts/<username>')
@@ -144,8 +210,6 @@ def upvote_post():
             downvote_list.remove(email)
             status = "in_and_flip"
 
-    
-
     db(db.post.id == id).update(
         thumbs_up=upvote_list,
         thumbs_down=downvote_list,
@@ -203,9 +267,11 @@ def get_vote_names():
 
 
 
-@action('view/<username>', method=["GET"])
-@action.uses(url_signer, auth, db, 'view.html')
-def view(username):
+
+
+@action('view_profile/<username>', method=["GET"])
+@action.uses(url_signer, auth, db, 'view_profile.html')
+def view_profile(username):
     user = auth.get_user() or redirect(URL('auth/login'))
     return dict(
         load_user_info_url = URL('load_user_info', username, signer=url_signer),
@@ -230,6 +296,26 @@ def load_user_info(username):
     if user.get('username') == username:
         permission = True
     
+    thumbsup = 0
+    thumbslength = 0
+    rows = db(db.post.username == username).select().as_list()
+    for r in rows: #parse posts
+        thumbsup+=len(r['thumbs_up'])
+        thumbslength+=(len(r['thumbs_up'])+len(r['thumbs_down']))
+    if thumbslength == 0:
+        rating = str(0)
+        rep = "N/A"
+    else:
+        rating = math.floor((thumbsup/thumbslength) * 100)
+        if rating > 50: #assign rep
+            rating =str(rating)
+            rep ="In the Right"
+        elif rating < 50:
+            rating = str(rating)
+            rep = "In the Wrong"
+        else: #equal
+            rating =str(rating)
+            rep = "Neutral"
     user1 = (db(db.post.username == username)).select().first()
     found_username = user1.username
     found_full_name = user1.first_name + " " + user1.last_name
@@ -237,17 +323,158 @@ def load_user_info(username):
     if not prof:
         prof = ""
     else:
-        prof = "https://storage.cloud.google.com" + prof.file_path
-    print(prof)
+        prof = "https://storage.googleapis.com" + prof.file_path
+        
     return dict(
         username = found_username,
         full_name = found_full_name,
         permission = permission,
-        picture= prof
+        picture= prof,
+        rating = rating,
+        rep = rep,
     )
     
-    
-    
+@action('view_comments/<post_id>', method=["GET"])
+@action.uses(url_signer, auth, db, 'view_comments.html')
+def view_comments(post_id):
+    user = auth.get_user() or redirect(URL('auth/login'))
+    return dict(
+        # post urls
+        load_post_url = URL('load_post', post_id, signer=url_signer),
+        delete_post_url = URL('delete_post', signer=url_signer),
+        upvote_post_url = URL('upvote_post', signer=url_signer),
+        downvote_post_url = URL('downvote_post', signer=url_signer),
+        get_vote_names_url = URL('get_vote_names', signer=url_signer),
+
+        # comments urls
+        load_comments_url = URL('load_comments', post_id, signer=url_signer),
+        add_comment_url = URL('add_comment', signer=url_signer),
+        delete_comment_url = URL('delete_comment', signer=url_signer),
+        delete_all_comments_url = URL('delete_all_comments', signer=url_signer),
+        upvote_comment_url = URL('upvote_comment', signer=url_signer),
+        downvote_comment_url = URL('downvote_comment', signer=url_signer),
+    )
+
+# TODO
+@action('load_post/<post_id>', method=["GET"])
+@action.uses(url_signer.verify(), db)
+def load_post(post_id):
+    user = auth.get_user() or redirect(URL('auth/login'))
+    return dict(post=db(db.post.id == post_id).select().as_list()[0],
+                email=user.get("email"),
+                rows=db(db.comment.parent_post == post_id).select().as_list(),)
+
+# TODO
+@action('load_comments/<post_id>', method=["GET"])
+@action.uses(url_signer.verify(), db)
+def load_comments(post_id):
+    pass
+
+# TODO
+@action('add_comment', method=["POST"])
+@action.uses(url_signer.verify(), db)
+def add_comment():
+    user = auth.get_user() or redirect(URL('auth/login'))
+
+    email = user.get('email')
+    username = user.get('username')
+    thumbs_up = []
+    thumbs_down = []
+    now = datetime.datetime.now()
+    id = db.comment.insert(
+        parent_post=request.json.get('post_id'),
+        content=request.json.get('content'),
+        author_email=email,
+        username=username,
+        thumbs_up=thumbs_up,
+        thumbs_down=thumbs_down,
+        datetime=now,
+    )
+
+    return dict(id=id,
+                email=email,
+                username=username,
+                thumbs_up=thumbs_up,
+                thumbs_down=thumbs_down,
+                datetime=now,)
+
+
+@action('delete_comment')
+@action.uses(url_signer.verify(), db)
+def delete_comment():
+    id = request.params.get('id')
+    assert id is not None
+    db(db.comment.id == id).delete()
+    return "ok"
+
+@action('delete_all_comments')
+@action.uses(url_signer.verify(), db)
+def delete_all_comments():
+    # id = request.params.get('id')
+    # assert id is not None
+    # db(db.comment.id == id).delete()
+
+    parent_post = request.params.get('parent_post')
+    assert parent_post is not None
+    db(db.comment.parent_post == parent_post).delete()
+    return "ok"
+
+# TODO
+@action('upvote_comment', method="POST")
+@action.uses(url_signer.verify(), db)
+def upvote_comment():
+    user = auth.get_user() or redirect(URL('auth/login'))
+    email = user.get('email')
+    id = request.json.get('id')
+    assert id is not None
+    upvote_list = (db(db.comment.id == id)).select().first().thumbs_up
+    downvote_list = (db(db.comment.id == id)).select().first().thumbs_down
+
+    if email in upvote_list:
+        upvote_list.remove(email)
+        status = "out"
+    else:
+        upvote_list.append(email)
+        status = "in"
+        if email in downvote_list:
+            downvote_list.remove(email)
+            status = "in_and_flip"
+
+    db(db.comment.id == id).update(
+        thumbs_up=upvote_list,
+        thumbs_down=downvote_list,
+    )
+
+    return status
+
+# TODO
+@action('downvote_comment', method="POST")
+@action.uses(url_signer.verify(), db)
+def downvote_comment():
+    user = auth.get_user() or redirect(URL('auth/login'))
+    email = user.get('email')
+    id = request.json.get('id')
+    assert id is not None
+    upvote_list = (db(db.comment.id == id)).select().first().thumbs_up
+    downvote_list = (db(db.comment.id == id)).select().first().thumbs_down
+
+    if email in downvote_list:
+        downvote_list.remove(email)
+        status = "out"
+    else:
+        downvote_list.append(email)
+        status = "in"
+        if email in upvote_list:
+            upvote_list.remove(email)
+            status = "in_and_flip"
+
+    db(db.comment.id == id).update(
+        thumbs_up=upvote_list,
+        thumbs_down=downvote_list,
+    )
+
+    return status
+
 #
 # GCS CODE
 #
@@ -323,12 +550,14 @@ def notify_upload():
     file_name = request.json.get("file_name")
     file_path = request.json.get("file_path")
     file_size = request.json.get("file_size")
-    print("File was uploaded:", file_path, file_name, file_type)
     # Deletes any previous file.
     rows = db(db.profile.user == user1.get('id')).select()
     for r in rows:
         if r.file_path != file_path:
             delete_path(r.file_path)
+            
+            
+    rows = db(db.profile.user == user1.get('id')).select().first()
     # Marks the upload as confirmed.
     d = datetime.datetime.utcnow()
     db.profile.update_or_insert(
@@ -346,6 +575,7 @@ def notify_upload():
     return dict(
         download_url=gcs_url(GCS_KEYS, file_path, verb='GET'),
         file_date=d,
+        picture = "https://storage.googleapis.com" + rows.file_path
     )
 
 @action('notify_delete', method="POST")
