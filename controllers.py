@@ -66,6 +66,7 @@ def index():
         upvote_post_url = URL('upvote_post', signer=url_signer),
         downvote_post_url = URL('downvote_post', signer=url_signer),
         get_vote_names_url = URL('get_vote_names', signer=url_signer),
+        find_posts_url = URL('find_posts', signer=url_signer),
     )
 
 
@@ -149,6 +150,19 @@ def load_profposts(username):
     rows = db(db.post.username == username).select().as_list()
     return dict(rows=rows,
                 email=user.get("email"),)
+
+@action('find_posts')
+@action.uses(url_signer.verify(), db)
+def find_posts():
+    t = request.params.get('q')
+    if t:
+        tt = t.strip()
+        q = ((db.post.content.contains(tt)))
+    else:
+        q = db.post.id > 0
+    posts = db(q).select(db.post.ALL, distinct=True).as_list()
+    return dict(
+        posts=posts)
 
 @action('add_post', method="POST")
 @action.uses(url_signer.verify(), db)
