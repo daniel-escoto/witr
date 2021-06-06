@@ -199,6 +199,11 @@ def get_vote_names():
 
     return dict(name_string=name_string)
 
+# @action('get_comments_count')
+# @action.uses(url_signer.verify(), db)
+# def get_comments_count():
+
+
 
 
 @action('view_profile/<username>', method=["GET"])
