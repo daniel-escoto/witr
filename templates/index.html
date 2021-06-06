@@ -59,15 +59,27 @@
 
   <!-- sort selecter -->
   <div class="container block">
-    <div class="select">
-      <select v-model="sort_option">
-        <option>Most Recent</option>
-        <option>Most Upvotes</option>
-        <option>Most Downvotes</option>
-        <option>Most Votes</option>
-        <option>Most Controversial</option>
-      </select>
-    </div>
+        <div class = "level">
+            <div class = "level-left">
+                <div class="select">
+                    <select v-model="sort_option">
+                        <option>Most Recent</option>
+                        <option>Most Upvotes</option>
+                        <option>Most Downvotes</option>
+                        <option>Most Votes</option>
+                        <option>Most Controversial</option>
+                  </select>
+                </div>
+            </div>
+           <div class = "level-right">
+                <div class="container block">
+                    <span @click="view_leaderboard" class="button is-warning">
+                    <i> Leaderboard</i>
+                    </span>
+              </div>
+          </div>
+      </div>
+
   </div>
 
   <!-- posts -->

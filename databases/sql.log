@@ -1,4 +1,4 @@
-timestamp: 2021-06-04T16:33:13.711632
+timestamp: 2021-06-05T19:40:27.553972
 CREATE TABLE "py4web_session"(
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "rkey" CHAR(512),
@@ -8,7 +8,7 @@ CREATE TABLE "py4web_session"(
     "expires_on" TIMESTAMP
 );
 success!
-timestamp: 2021-06-04T16:33:13.719311
+timestamp: 2021-06-05T19:40:27.560109
 CREATE TABLE "auth_user"(
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "username" CHAR(512) UNIQUE,
@@ -22,14 +22,14 @@ CREATE TABLE "auth_user"(
     "past_passwords_hash" TEXT
 );
 success!
-timestamp: 2021-06-04T16:33:13.723936
+timestamp: 2021-06-05T19:40:27.563078
 CREATE TABLE "auth_user_tag_groups"(
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "path" CHAR(512),
     "record_id" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  
 );
 success!
-timestamp: 2021-06-04T16:33:13.796326
+timestamp: 2021-06-05T19:40:27.616334
 CREATE TABLE "profile"(
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "user" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE  ,
@@ -42,7 +42,7 @@ CREATE TABLE "profile"(
     "confirmed" CHAR(1)
 );
 success!
-timestamp: 2021-06-04T16:33:13.802980
+timestamp: 2021-06-05T19:40:27.620358
 CREATE TABLE "post"(
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "content" CHAR(512),
@@ -55,7 +55,7 @@ CREATE TABLE "post"(
     "datetime" TIMESTAMP
 );
 success!
-timestamp: 2021-06-04T16:33:13.805700
+timestamp: 2021-06-05T19:40:27.622593
 CREATE TABLE "comment"(
     "id" INTEGER PRIMARY KEY AUTOINCREMENT,
     "parent_post" INTEGER REFERENCES "post" ("id") ON DELETE CASCADE  ,

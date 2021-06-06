@@ -302,7 +302,9 @@ let init = (app) => {
   app.view_comments = function (comments_id) {
     window.location.href = `../view_comments/${comments_id}`;
   };
-
+  app.view_leaderboard = function () {
+    window.location.href = `../view_leaderboard/`;
+  };
   // This contains all the methods.
   app.methods = {
     // Complete as you see fit.
@@ -317,6 +319,7 @@ let init = (app) => {
     // hide_votes: app.hide_votes,
     view_profile: app.view_profile,
     view_comments: app.view_comments,
+    view_leaderboard: app.view_leaderboard,
   };
 
   // This creates the Vue instance.

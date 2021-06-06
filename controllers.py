@@ -29,7 +29,7 @@ import json
 import os
 import traceback
 import uuid
-
+import math
 from nqgcs import NQGCS
 
 from py4web import action, request, abort, redirect, URL
@@ -68,6 +68,61 @@ def index():
         get_vote_names_url = URL('get_vote_names', signer=url_signer),
     )
 
+
+@action('view_leaderboard', method="GET")
+@action.uses(db, auth, url_signer, 'view_leaderboard.html')
+def view_leaderboard():
+    user = auth.get_user() or redirect(URL('auth/login'))
+        
+    return dict(
+        load_view_leaderboard = URL('load_view_leaderboard', signer=url_signer)
+    )
+
+
+@action('load_view_leaderboard', method="GET")
+@action.uses(db, url_signer.verify())
+def load_view_leaderboard():
+    user = auth.get_user() or redirect(URL('auth/login'))
+    newRows = [] #result [{username, avg, rep, profile pic}, ...]
+    checked = [] #history
+    thumbsup = 0
+    thumbslength = 0
+    rows = db(db.post).select().as_list()
+    for r in rows: #parse posts
+        dic = {}
+        if r['username'] not in checked: #check if we havent validated already
+            thumbsup=0
+            thumbslength=0
+            dic['username'] = r['username']
+            checked.append(r['username'])
+            rows2 = db(db.post.username == r['username']).select().as_list()
+            picture = db(db.profile.username == r['username']).select().first()
+            for ar in rows2: #record
+                thumbsup+=len(ar['thumbs_up'])
+                thumbslength+=(len(ar['thumbs_up'])+len(ar['thumbs_down']))
+                
+            #print("Thumbs up: ", thumbsup)
+            #print("Thumbs len: ", thumbslength)
+            if thumbslength == 0:
+                dic['avg'] = 0
+                dic['reputation'] = "N/A"
+            else:
+                dic['avg'] = math.floor((thumbsup/thumbslength) * 100)
+                if dic['avg'] > 50: #assign rep
+                    dic['reputation'] = "In the Right" 
+                elif dic['avg'] < 50:
+                    dic['reputation'] = "In the Wrong"
+                else: #equal
+                    dic['reputation'] = "Neutral"
+            dic['picture'] = "https://storage.googleapis.com" + picture.file_path if picture is not None else "" #picture
+            newRows.append(dic)
+            
+            
+    sorted(newRows, key = lambda i: i['avg']) # This will sort high avg to low
+    return dict(
+        lrows = newRows,
+    )  
+    
 @action('load_posts')
 @action.uses(url_signer.verify(), db)
 def load_posts():
@@ -233,6 +288,26 @@ def load_user_info(username):
     if user.get('username') == username:
         permission = True
     
+    thumbsup = 0
+    thumbslength = 0
+    rows = db(db.post.username == username).select().as_list()
+    for r in rows: #parse posts
+        thumbsup+=len(r['thumbs_up'])
+        thumbslength+=(len(r['thumbs_up'])+len(r['thumbs_down']))
+    if thumbslength == 0:
+        rating = str(0)
+        rep = "N/A"
+    else:
+        rating = math.floor((thumbsup/thumbslength) * 100)
+        if rating > 50: #assign rep
+            rating =str(rating)
+            rep ="In the Right"
+        elif rating < 50:
+            rating = str(rating)
+            rep = "In the Wrong"
+        else: #equal
+            rating =str(rating)
+            rep = "Neutral"
     user1 = (db(db.post.username == username)).select().first()
     found_username = user1.username
     found_full_name = user1.first_name + " " + user1.last_name
@@ -240,13 +315,15 @@ def load_user_info(username):
     if not prof:
         prof = ""
     else:
-        prof = "https://storage.cloud.google.com" + prof.file_path
-    print(prof)
+        prof = "https://storage.googleapis.com" + prof.file_path
+        
     return dict(
         username = found_username,
         full_name = found_full_name,
         permission = permission,
-        picture= prof
+        picture= prof,
+        rating = rating,
+        rep = rep,
     )
     
 @action('view_comments/<post_id>', method=["GET"])
@@ -465,12 +542,14 @@ def notify_upload():
     file_name = request.json.get("file_name")
     file_path = request.json.get("file_path")
     file_size = request.json.get("file_size")
-    print("File was uploaded:", file_path, file_name, file_type)
     # Deletes any previous file.
     rows = db(db.profile.user == user1.get('id')).select()
     for r in rows:
         if r.file_path != file_path:
             delete_path(r.file_path)
+            
+            
+    rows = db(db.profile.user == user1.get('id')).select().first()
     # Marks the upload as confirmed.
     d = datetime.datetime.utcnow()
     db.profile.update_or_insert(
@@ -488,6 +567,7 @@ def notify_upload():
     return dict(
         download_url=gcs_url(GCS_KEYS, file_path, verb='GET'),
         file_date=d,
+        picture = "https://storage.googleapis.com" + rows.file_path
     )
 
 @action('notify_delete', method="POST")
