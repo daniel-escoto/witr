@@ -80,6 +80,7 @@ let init = (app) => {
     add_content: "",
     rows: [],
     email: "",
+    query_posts: "",
   };
 
   app.watch = {
@@ -143,11 +144,18 @@ let init = (app) => {
     a.map((e) => {
       e._idx = k++;
     });
-    console.log(a);
     return a;
   };
 
   // methods
+  app.find_posts = function () {
+    axios
+      .get(find_posts_url, { params: { q: app.vue.query_posts } })
+      .then(function (r) {
+        app.vue.rows = app.enumerate(r.data.posts);
+      });
+  };
+
   app.add_post = function () {
     axios
       .post(add_post_url, {
@@ -309,6 +317,7 @@ let init = (app) => {
   // This contains all the methods.
   app.methods = {
     // Complete as you see fit.
+    find_posts: app.find_posts,
     add_post: app.add_post,
     reset_form: app.reset_form,
     set_add_post: app.set_add_post,
@@ -346,7 +355,6 @@ let init = (app) => {
       });
       app.vue.email = response.data.email;
       app.vue.sort_option = "Most Recent";
-      console.log(app.vue.rows);
     });
   };
 
