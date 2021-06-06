@@ -1,4 +1,5 @@
 [[extend 'layout.html']]
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css">
 <style>
   [v-cloak] {
     display: none;
@@ -6,169 +7,154 @@
 </style>
 
 <div class="section" id="vue-target" v-cloak>
-  <div class="container block">
-    <h1 class="title">{{username}}'s Profile Page</h1>
-  </div>
-  
-  
-  
-  <div class = "columns is-mobile is-centered">
-    <!-- Creating Profile Container aligned to Left Side  -->
-      <div class = "column is-one-quarter">
-            <div class = "section">
-                <div class="card">
-                  <div class="card-content">
-                    <div class="media">
-                      <div class="media-left">
-                          <div v-if="(!picture) && permission">
-                            <p class="control">
-                              <div class="file is-info">
-                                <label class="file-label">
-                                  <input class="file-input" type="file"
-                                         accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*"
-                                         @change="upload_file($event)">
-                                  <span class="file-cta">
-                                    <span class="file-label">
-                                      <span><i class = "fa fa-upload"></i></span>
-                                    </span>
-                                  </span>
-                                </label>
-                              </div>
-                            </p>
-                          </div>
-                          <div v-else-if="(!picture)">
-                            <figure class="image is-128x128">
-                                  <img class= "is-rounded" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" />
-                            </figure>
-                          </div>
-                          <div v-else>
-                            <figure class="image is-128x128">
-                                  <img class= "is-rounded" src="picture" />
-                            </figure>
-                          </div>
 
-                      </div>
-                      <div class="media-content">
-                        <p class="title is-4">{{full_name}}</p>
-                        <p class="subtitle is-6">{{username}}</p>
-                      </div>
-                    </div>
-                
-                    <div class="content">
-                                Rating Here!! (Todo)
-                    </div>
-                  </div>
-                </div>
+  <div class="columns block is-mobile is-centered">
+
+    <!-- User Profile Information -->
+    <div class="column section block is-one-third is-mobile">
+      <div class="card is-mobile">
+        <div class="card-image is-mobile">
+
+          <!-- Current User Logged & Looking At Profile Information -->
+            <div v-if="file_path">
+              <figure class="image is-1by1 is-mobile-fullwidth">
+                <img :src="picture" />
+              </figure>
+            </div>
+            <div v-else>
+              <figure class="image is-square is-mobile-fullwidth">
+                <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" />
+              </figure>
+            </div>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="card-content">
+          <div class="media-content">
+            <h1 class="is-size-3 has-text-weight-bold">{{full_name}}'s Profile</h1>
+            <p class="is-size-5 has-text-grey">@ {{username}}</p>
+            <p class="is-size-7">Asshole Rating: ((an asshole rating))</p>
+          </div>
+
+          <!-- Adds Upload Photo Ability -->
+          <div v-if="permission">
+            <!-- Upload Profile Picture -->
+            <p class="control py-1 is-mobile">
+              <div class="file is-info is-mobile">
+                <label class="file-label is-mobile">
+                  <input class="file-input is-mobile" type="file" accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*"
+                    @change="upload_file($event)">
+                  <span class="file-cta is-mobile">
+                    <span class="file-icon is-mobile">
+                      <i v-if="uploading" class="fa fa-spinner fa-pulse fa-fw"></i>
+                      <i v-else class="fa fa-upload fa-fw"></i>
+                    </span>
+                    <span class="file-label is-mobile">
+                      <span v-if="!uploading">Upload Photo</span>
+                    </span>
+                  </span>
+                </label>
+              </div>
+              </p>
+
+            <!-- Delete Profile Picture -->
+            <p class="control py-2" v-if='file_path'>
+              <button class="button is-danger" @click="delete_file" :class="{'is-loading': deleting}">
+                <span v-if="delete_confirmation">Confirm Deletion</span>
+                <i v-else class="fa fa-trash"></i>
+              </button>
+            </p>
+          </div>
           
-            </div>
         </div>
-        <!-- Creating Post History aligned to Right Side -->
-        <div class = "column is-half">
-            <div class = "section">
-                <div class= "card">
-                <!-- Creating Post History aligned to Right Side -->
-                    <!-- posts -->
-                    <div v-for="r in rows.slice().reverse()" class="container block">
-                    <!-- post -->
-                        <div class="tile is-ancestor has-background-light">
-                            <div class="tile is-vertical pr-6 py-5 is-parent">
-                                <!-- post text -->
-                                <div class="tile is-child">
-                                    <p>{{r.content}}</p>
-                                </div>
-                
-                                <!-- post name -->
-                                <div class="tile is-child">
-                                    <a @click="view_profile(r.username)" class="has-text-grey">
-                                        {{r.username}}</a
-                                                >
-                                </div>
-                
-                                <!-- buttons -->
-                                <div class="tile is-child">
-                                    <nav class="level">
-                                        <div class="level-left">
-                                            <div class="level-item">
-                                                <!-- thumbs up (highlighted) -->
-                                                <span
-                                                  v-if="r.thumbs_up.includes(email)"
-                                                  @click="upvote_post(r._idx)"
-                                                  class="icon is-medium has-text-info"
-                                                >
-                                                  <i
-                                                    @mouseover="show_upvotes(r._idx)"
-                                                    @mouseleave="hide_votes"
-                                                    class="fas fa-thumbs-up fa-lg fa-flip-horizontal"
-                                                  ></i>
-                                                </span>
-                                                <!-- thumbs up (un-highlighted) -->
-                                                <span
-                                                  v-else
-                                                  @click="upvote_post(r._idx)"
-                                                  class="icon is-medium has-text-info"
-                                                >
-                                                  <i
-                                                    @mouseover="show_upvotes(r._idx)"
-                                                    @mouseleave="hide_votes"
-                                                    class="far fa-thumbs-up fa-lg fa-flip-horizontal"
-                                                  ></i>
-                                                </span>
-                                
-                                                <!-- thumbs down (highlighted)  -->
-                                                <span
-                                                  v-if="r.thumbs_down.includes(email)"
-                                                  @click="downvote_post(r._idx)"
-                                                  class="icon is-medium has-text-danger"
-                                                >
-                                                  <i
-                                                    @mouseover="show_downvotes(r._idx)"
-                                                    @mouseleave="hide_votes"
-                                                    class="fas fa-thumbs-down fa-lg"
-                                                  ></i>
-                                                </span>
-                                                <!-- thumbs down (un-highlighted)  -->
-                                                <span
-                                                  v-else
-                                                  @click="downvote_post(r._idx)"
-                                                  class="icon is-medium has-text-danger"
-                                                >
-                                                  <i
-                                                    @mouseover="show_downvotes(r._idx)"
-                                                    @mouseleave="hide_votes"
-                                                    class="far fa-thumbs-down fa-lg"
-                                                  ></i>
-                                                </span>
-                                              </div>
-                                      <div v-if="r._idx === hover_idx" class="level-item">
-                                        <span class="content has-text-info">{{vote_status}}</span>
-                                      </div>
-                                    </div>
-                            <div v-if="r.author_email === email" class="level-right">
-                              <div class="level-item">
-                                <!-- trash button -->
-                                <span
-                                  @click="delete_post(r._idx)"
-                                  class="icon is-medium has-text-danger"
-                                >
-                                  <i class="fas fa-trash-alt fa-lg"></i>
-                                </span>
-                              </div>
-                            </div>
-                          </nav>
-                        </div>
+      </div>
+    </div>
+
+    <!-- Post History -->
+    <div class="column section block is-mobile">
+      <h1 class="title is-3 has-text-centered">
+        Post History
+      </h1>
+
+      <div class="section is-mobile">
+        <div class="tile is-ancestor is-mobile">
+          <div class="tile is-vertical is-mobile">
+
+            <!-- Post Information -->
+            <div v-for="r in rows.slice().reverse()" class="tile is-child is-mobile notification is-light">
+
+              <div class="tile is-child is-size-5 is-mobile">
+                <p>{{r.content}}</p>
+              </div>
+              <div class="tile is-child is-size-7 has-text-grey is-mobile">
+                <p>{{r.username}}</p>
+              </div>
+
+              <div class="tile is-child">
+                <!-- Likes Portion -->
+                <nav class="level">
+                  <div class="level-left">
+                    <div class="level-item">
+                      <!-- Thumbs Up (Solid) -->
+                      <span v-if="r.thumbs_up.includes(email)" @click="upvote_post(r._idx)"
+                        class="icon is-medium has-text-info">
+                        <i @mouseover="show_upvotes(r._idx)" @mouseleave="hide_votes"
+                          class="fas fa-thumbs-up fa-lg fa-flip-horizontal"></i>
+                      </span>
+
+                      <!-- Thumbs Up (Outline) -->
+                      <span v-else @click="upvote_post(r._idx)" class="icon is-medium has-text-info">
+                        <i @mouseover="show_upvotes(r._idx)" @mouseleave="hide_votes"
+                          class="far fa-thumbs-up fa-lg fa-flip-horizontal"></i>
+                      </span>
+
+                      <!-- Thumbs Down (Solid) -->
+                      <span v-if="r.thumbs_down.includes(email)" @click="downvote_post(r._idx)"
+                        class="icon is-medium has-text-danger">
+                        <i @mouseover="show_downvotes(r._idx)" @mouseleave="hide_votes"
+                          class="fas fa-thumbs-down fa-lg"></i>
+                      </span>
+
+                      <!-- Thumbs Down (Outline) -->
+                      <span v-else @click="downvote_post(r._idx)" class="icon is-medium has-text-danger">
+                        <i @mouseover="show_downvotes(r._idx)" @mouseleave="hide_votes"
+                          class="far fa-thumbs-down fa-lg"></i>
+                      </span>
+
+                      <!-- Like/Dislike List -->
+                      <div v-if="r._idx === hover_idx" class="level-item is-mobile">
+                        <span class="content is-mobile has-text-info">{{vote_status}}</span>
                       </div>
                     </div>
                   </div>
-                </div>
+
+                  <div v-if="r.author_email === email" class="level-right is-mobile">
+                    <!-- trash button -->
+                    <div class="level-item">
+                      <span @click="delete_post(r._idx)" class="icon is-medium is-mobile has-text-danger ">
+                        <i class="fas fa-trash-alt fa-lg"></i>
+                      </span>
+                    </div>
+                  </div>
+                </nav>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
+    </div>
+
   </div>
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+
+
+
 </div>
 
 [[block page_scripts]]
@@ -179,7 +165,11 @@
   let upvote_post_url = "[[=XML(upvote_post_url)]]";
   let downvote_post_url = "[[=XML(downvote_post_url)]]";
   let get_vote_names_url = "[[=XML(get_vote_names_url)]]";
-  let upload_picture_url = "[[=XML(upload_picture_url)]]"
+  let upload_picture_url = "[[=XML(upload_picture_url)]]";
+  let file_info_url = "[[=XML(file_info_url)]]";
+  let obtain_gcs_url = "[[=XML(obtain_gcs_url)]]";
+  let notify_url = "[[=XML(notify_url)]]";
+  let delete_url = "[[=XML(delete_url)]]";
 </script>
 <script src="js/view.js"></script>
 [[end]]

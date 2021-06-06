@@ -14,6 +14,16 @@
     <h1 class="title">witr</h1>
   </div>
 
+  <!-- search bar -->
+  <div class="container block">
+    <p class="control has-icons-right">
+      <input class="input" v-model="query_posts" placeholder="Search Post" @keyup="find_posts"/>
+      <span class="icon is-small is-right">
+        <i class="fa fa-search"></i>
+      </span>
+    </p>
+  </div>
+
   <!-- post options -->
   <div v-if="add_mode" class="container block">
     <div class="form">
@@ -70,8 +80,8 @@
         <!-- post name -->
         <div class="tile is-child">
           <a @click="view_profile(r.username)" class="has-text-grey">
-            {{r.username}}</a
-          >
+            {{r.username}}
+          </a>
         </div>
 
         <!-- buttons -->
@@ -161,6 +171,7 @@
   let upvote_post_url = "[[=XML(upvote_post_url)]]";
   let downvote_post_url = "[[=XML(downvote_post_url)]]";
   let get_vote_names_url = "[[=XML(get_vote_names_url)]]";
+  let find_posts_url = "[[=XML(find_posts_url)]]";
 </script>
 <script src="js/index.js"></script>
 [[end]]

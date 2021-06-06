@@ -1,0 +1,13 @@
+{
+    "type": "service_account",
+    "project_id": "witrfilestorage",
+    "private_key_id": "9bb6d5b6b1608dba7458a32c80aa286bdcab0f65",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCY+Lss5yjZMXTY\nqsNPjpiR99BajPdP7/IwmpSZJ/XajDHvxanLlfQ0nOz/j+443DZJmBp+YI3BvMX1\nORB8oO/XDmCUrVXYymaRXnGhDfHef/XD7n48l1Xi5HW9K4UqgYZBwv5vGUHY5lDy\nxcocuVoKv/XwwT+qkZ0lBWxxGhpGzzp0lZiw/sCZRzNWDchB/2WBPXP0cOJr5u6Q\nxdL1LyqnWacegKXk/LAFqQo3cxLQrxQjnZ/I/5cpoU65liusNuh/BMzlGcKHOJYk\n19HqeajDWdw+pAcYpyZ/6rGkjmJd4IYVKl6tJBKAkt3Rpy2rDwEBnt4fb1Ufa+Gr\nq3yhou8nAgMBAAECggEANmYt2hgSdLqbvPltH3usUix4kdsTj//aduJh+d02FxRI\nJeZ7LYUUJSmxNmju5JWbUKygr1SS1NTW6Q/0Bv4MjMP2IKlLoB7KPuQBMK8O1ntW\n4OiNR+rhhiCMpks1vhn1rqkzZjrrKcEuBEfGSlS36p69TXLLu1KxOZsmJ0qLEabO\n87a4UgH2kSzugpWV858FP/1GDIG/fcfWws2ZWXn9ybVRu5txZoyiL57ZE0dqcDiE\nHQoTYqzruOJp97Tuk55pE8N64VqPb0CIuNWeMyNcXE6iUJTOiJgUV/mF/6r24cO8\nXpDGRSAkyObQmkYGjreIf0p5htMgCecy5PCfVkUGQQKBgQDXrxZ4OOHTc+qNk2+e\nRWcurUP6iQLuUXGL0cihbqV5p6ZYhQyhrM6gxIZdFf5VbNNpqHhQwRNoP+gmL6lH\n7EBznODB5Ng4cgPJEtnNsbweFPXC4SOsAi9XQ8DDQOSfj25OtJN7ArggUHqtEW4s\np7g+kvCzEHmkTJmpitZT0Y7PlwKBgQC1kLtMZfxc0l6866HTrkmwWOD0+THvc4Et\nShcXvpvjtKS/fGA2MrWZBEVmp2/jSjXSRWLyqq887ltuVOe+8kgsDjnDSU7HHRfk\nAy6DBBvFQMz+BeDaAcRQ2V9b7v/T7xWu4hTp+MdyOzcKLxz8ILtcwK2tCEYslVFG\n3h6NrsrO8QKBgGxHLOub+tsR9W2v17hINV28hEURZZRI9Mzxu1w31QD3Bk6oNMgx\nneYd4yp2MSGnqZcAia5Yz6plcuFAyiYeV9jyp+8POPFVY8sdGJToJn2fniWAq0ze\nJ/ASRoJ/YIcuFX2Tr/pwSgmG/Z9HAd2PMbLQR+BNZBP0lKwF1EVuDdjvAoGATv2I\nftRf1oIvdUGORemtZWtFc052yxYVPP7ezRW//HC6vBQAR5QILWoOR3rQ0rGWeMR3\nJ9vaIUgRvw5xREFj5MbLmopqG3YszqYTtiwzaL2ocVtdV3stTX9EXVq9Mhbx+AOj\n1abGHoxkham5kncrDE9HP+A5p2vO0GYSJNHGqgECgYEAntPy6OzFqddA1mqsgA/W\nYEQi/cJhMqUKGEVLuEJSVdYRxl08qTwDfXAUGIz3V5coa8A6P4Iz1XZVclLgktNR\nXGlNR4wV6j/vgL0uhWsfCbnZM4Vx0FwH13Waqnbd4oOuxNklvn5VpKOiNEenMtuI\nuT11jQ2I1xfpTUauevEZSGM=\n-----END PRIVATE KEY-----\n",
+    "client_email": "gavril@witrfilestorage.iam.gserviceaccount.com",
+    "client_id": "109889671790007479291",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/gavril%40witrfilestorage.iam.gserviceaccount.com"
+  }
+  
