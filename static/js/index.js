@@ -167,6 +167,7 @@ let init = (app) => {
           display_datetime: `${ago(
             new Date(response.data.datetime).getTime()
           )} ago`,
+          comment_count: 0,
         });
         app.reset_form();
         app.set_add_post(false);
@@ -335,10 +336,13 @@ let init = (app) => {
     // Put here any initialization code.
     // Typically this is a server GET call to load the data.
     axios.get(load_posts_url).then(function (response) {
+      let comment_counts = response.data.comment_counts;
       app.vue.rows = app.enumerate(response.data.rows);
       app.vue.rows.forEach(function (row) {
         let d = new Date(row.datetime);
         row.display_datetime = `${ago(d.getTime())} ago`;
+
+        row.comment_count = comment_counts[row.id];
       });
       app.vue.email = response.data.email;
       app.vue.sort_option = "Most Recent";

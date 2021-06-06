@@ -59,27 +59,26 @@
 
   <!-- sort selecter -->
   <div class="container block">
-        <div class = "level">
-            <div class = "level-left">
-                <div class="select">
-                    <select v-model="sort_option">
-                        <option>Most Recent</option>
-                        <option>Most Upvotes</option>
-                        <option>Most Downvotes</option>
-                        <option>Most Votes</option>
-                        <option>Most Controversial</option>
-                  </select>
-                </div>
-            </div>
-           <div class = "level-right">
-                <div class="container block">
-                    <span @click="view_leaderboard" class="button is-warning">
-                    <i> Leaderboard</i>
-                    </span>
-              </div>
-          </div>
+    <div class="level">
+      <div class="level-left">
+        <div class="select">
+          <select v-model="sort_option">
+            <option>Most Recent</option>
+            <option>Most Upvotes</option>
+            <option>Most Downvotes</option>
+            <option>Most Votes</option>
+            <option>Most Controversial</option>
+          </select>
+        </div>
       </div>
-
+      <div class="level-right">
+        <div class="container block">
+          <span @click="view_leaderboard" class="button is-warning">
+            <i> Leaderboard</i>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- posts -->
@@ -162,30 +161,17 @@
                 >
                   <i class="far fa-thumbs-down fa-lg"></i>
                 </span>
-                <!-- blue icon -->
+
                 <span
-                  v-if="r.thumbs_up.length > r.thumbs_down.length"
                   @click="view_comments(r.id)"
-                  class="fa-layers fa-lg fa-fw"
+                  class="has-text-success-dark"
                 >
-                  <i class="fas fa-info-circle has-text-info"></i>
-                </span>
-                <!-- red icon -->
-                <span
-                  v-else-if="r.thumbs_up.length < r.thumbs_down.length"
-                  @click="view_comments(r.id)"
-                  class="fa-layers fa-lg fa-fw"
+                  <i class="far fa-fw is-medium fa-comment fa-lg"></i>
+                  <span v-if="r.comment_count > 0" class="content">
+                    {{`${r.comment_count} comment${r.comment_count == 1 ? '' :
+                    's'}`}}</span
+                  ></span
                 >
-                  <i class="fas fa-info-circle has-text-danger"></i>
-                </span>
-                <!-- grey icon -->
-                <span
-                  v-else
-                  @click="view_comments(r.id)"
-                  class="fa-layers fa-lg fa-fw"
-                >
-                  <i class="fas fa-info-circle has-text-grey"></i>
-                </span>
               </div>
               <div class="level-item">
                 <span class="content has-text-grey"

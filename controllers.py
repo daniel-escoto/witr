@@ -127,8 +127,19 @@ def load_view_leaderboard():
 @action.uses(url_signer.verify(), db)
 def load_posts():
     user = auth.get_user() or redirect(URL('auth/login'))
-    return dict(rows=db(db.post).select().as_list(),
-                email=user.get("email"),)
+
+    rows=db(db.post).select().as_list()
+    comment_counts = {}
+
+    for row in rows:
+        id = row.get("id")
+        comment_count = (len(db(db.comment.parent_post == id).select().as_list()))
+        comment_counts[id] = comment_count
+
+
+    return dict(rows=rows,
+                email=user.get("email"),
+                comment_counts=comment_counts,)
                 
                 
 @action('load_profposts/<username>')
@@ -254,9 +265,6 @@ def get_vote_names():
 
     return dict(name_string=name_string)
 
-# @action('get_comments_count')
-# @action.uses(url_signer.verify(), db)
-# def get_comments_count():
 
 
 
