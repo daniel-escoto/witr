@@ -7,19 +7,33 @@
   img{
       border-radius: 50%;
   }
+
+  
+  .card.profCard{
+    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: auto;
+    justify-content:center;
+    width:fit-content;
+}
+
 </style>
 <div class="section" id="vue-target" v-cloak>
-  <div class="container block">
-    <h1 class="title">{{username}}'s Profile Page</h1>
-  </div>
+    <div class = "container block">
+    <span @click="index" class="button is-danger">
+        <i>Go Back</i>
+   </span>
+    <h1 class="title has-text-white">{{username}}'s Profile Page</h1>
+    </div>
+
   
   
-  
+
   <div class = "columns is-mobile is-centered">
     <!-- Creating Profile Container aligned to Left Side  -->
       <div class = "column is-one-quarter">
-            <div class = "section">
-                <div class="card">
+            <div class = "container block">
+                <div class="card profCard">
                   <div class="card-content">
                     <div class="media">
                       <div class="media-left">
@@ -88,102 +102,124 @@
                 <div class= "card">
                 <!-- Creating Post History aligned to Right Side -->
                     <!-- posts -->
-                    <div v-for="r in rows.slice().reverse()" class="container block">
-                    <!-- post -->
+                    <div v-for="r in rows" class="container block">
+                        <!-- post -->
                         <div class="tile is-ancestor has-background-light">
-                            <div class="tile is-vertical pr-6 py-5 is-parent">
-                                <!-- post text -->
-                                <div class="tile is-child">
-                                    <p>{{r.content}}</p>
-                                </div>
-                
-                                <!-- post name -->
-                                <div class="tile is-child">
-                                    <a @click="view_profile(r.username)" class="has-text-grey">
-                                        {{r.username}}</a
-                                                >
-                                </div>
-                
-                                <!-- buttons -->
-                                <div class="tile is-child">
-                                    <nav class="level">
-                                        <div class="level-left">
-                                            <div class="level-item">
-                                                <!-- thumbs up (highlighted) -->
-                                                <span
-                                                  v-if="r.thumbs_up.includes(email)"
-                                                  @click="upvote_post(r._idx)"
-                                                  class="icon is-medium has-text-info"
-                                                >
-                                                  <i
-                                                    @mouseover="show_upvotes(r._idx)"
-                                                    @mouseleave="hide_votes"
-                                                    class="fas fa-thumbs-up fa-lg fa-flip-horizontal"
-                                                  ></i>
-                                                </span>
-                                                <!-- thumbs up (un-highlighted) -->
-                                                <span
-                                                  v-else
-                                                  @click="upvote_post(r._idx)"
-                                                  class="icon is-medium has-text-info"
-                                                >
-                                                  <i
-                                                    @mouseover="show_upvotes(r._idx)"
-                                                    @mouseleave="hide_votes"
-                                                    class="far fa-thumbs-up fa-lg fa-flip-horizontal"
-                                                  ></i>
-                                                </span>
-                                
-                                                <!-- thumbs down (highlighted)  -->
-                                                <span
-                                                  v-if="r.thumbs_down.includes(email)"
-                                                  @click="downvote_post(r._idx)"
-                                                  class="icon is-medium has-text-danger"
-                                                >
-                                                  <i
-                                                    @mouseover="show_downvotes(r._idx)"
-                                                    @mouseleave="hide_votes"
-                                                    class="fas fa-thumbs-down fa-lg"
-                                                  ></i>
-                                                </span>
-                                                <!-- thumbs down (un-highlighted)  -->
-                                                <span
-                                                  v-else
-                                                  @click="downvote_post(r._idx)"
-                                                  class="icon is-medium has-text-danger"
-                                                >
-                                                  <i
-                                                    @mouseover="show_downvotes(r._idx)"
-                                                    @mouseleave="hide_votes"
-                                                    class="far fa-thumbs-down fa-lg"
-                                                  ></i>
-                                                </span>
-                                              </div>
-                                      <div v-if="r._idx === hover_idx" class="level-item">
-                                        <span class="content has-text-info">{{vote_status}}</span>
-                                      </div>
-                                    </div>
-                            <div v-if="r.author_email === email" class="level-right">
-                              <div class="level-item">
-                                <!-- trash button -->
-                                <span
-                                  @click="delete_post(r._idx)"
-                                  class="icon is-medium has-text-danger"
-                                >
-                                  <i class="fas fa-trash-alt fa-lg"></i>
-                                </span>
-                              </div>
+                          <div class="tile is-vertical pr-6 py-5 is-parent">
+                            <!-- post text -->
+                            <div class="tile is-child">
+                              <p>{{r.content}}</p>
                             </div>
-                          </nav>
+                    
+                            <!-- post name -->
+                            <div class="tile is-child">
+                              <a @click="view_profile(r.username)" class="has-text-grey">
+                                {{r.username}}</a
+                              >
+                            </div>
+                    
+                            <!-- buttons -->
+                            <div class="tile is-child">
+                              <nav class="level">
+                                <div class="level-left">
+                                  <div class="level-item">
+                                    <!-- thumbs up (highlighted) -->
+                                    <span
+                                      v-if="r.thumbs_up.includes(email)"
+                                      @click="upvote_post(r._idx)"
+                                      class="icon is-medium has-text-info"
+                                    >
+                                      <i class="fas fa-thumbs-up fa-lg fa-flip-horizontal"></i>
+                                    </span>
+                                    <!-- thumbs up (un-highlighted) -->
+                                    <span
+                                      v-else
+                                      @click="upvote_post(r._idx)"
+                                      class="icon is-medium has-text-info"
+                                    >
+                                      <i class="far fa-thumbs-up fa-lg fa-flip-horizontal"></i>
+                                    </span>
+                    
+                                    <!-- blue count -->
+                                    <span
+                                      v-if="r.thumbs_up.length > r.thumbs_down.length"
+                                      class="has-text-info"
+                                    >
+                                      <div class="content">
+                                        {{`+${r.thumbs_up.length - r.thumbs_down.length}`}}
+                                      </div>
+                                    </span>
+                                    <!-- red count -->
+                                    <span
+                                      v-else-if="r.thumbs_up.length < r.thumbs_down.length"
+                                      class="has-text-danger"
+                                    >
+                                      <div class="content">
+                                        {{r.thumbs_up.length - r.thumbs_down.length}}
+                                      </div></span
+                                    >
+                                    <!-- grey count -->
+                                    <span v-else class="has-text-grey">
+                                      <div class="content">
+                                        {{r.thumbs_up.length - r.thumbs_down.length}}
+                                      </div>
+                                    </span>
+                    
+                                    <!-- thumbs down (highlighted)  -->
+                                    <span
+                                      v-if="r.thumbs_down.includes(email)"
+                                      @click="downvote_post(r._idx)"
+                                      class="icon is-medium has-text-danger"
+                                    >
+                                      <i class="fas fa-thumbs-down fa-lg"></i>
+                                    </span>
+                                    <!-- thumbs down (un-highlighted)  -->
+                                    <span
+                                      v-else
+                                      @click="downvote_post(r._idx)"
+                                      class="icon is-medium has-text-danger"
+                                    >
+                                      <i class="far fa-thumbs-down fa-lg"></i>
+                                    </span>
+                    
+                                    <span
+                                      @click="view_comments(r.id)"
+                                      class="has-text-success-dark"
+                                    >
+                                      <i class="far fa-fw is-medium fa-comment fa-lg"></i>
+                                      <span v-if="r.comment_count > 0" class="content">
+                                        {{`${r.comment_count} comment${r.comment_count == 1 ? '' :
+                                        's'}`}}</span
+                                      ></span
+                                    >
+                                  </div>
+                                  <div class="level-item">
+                                    <span class="content has-text-grey"
+                                      >{{r.display_datetime}}</span
+                                    >
+                                  </div>
+                                </div>
+                                <div v-if="r.author_email === email" class="level-right">
+                                  <div class="level-item">
+                                    <!-- trash button -->
+                                    <span
+                                      @click="delete_post(r._idx)"
+                                      class="icon is-medium has-text-danger"
+                                    >
+                                      <i class="fas fa-trash-alt fa-lg"></i>
+                                    </span>
+                                  </div>
+                                </div>
+                              </nav>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
                 </div>
             </div>
         </div>
   </div>
-  
+ 
   
   
   
@@ -205,5 +241,6 @@
   let notify_url = "[[=XML(notify_url)]]";
   let delete_url = "[[=XML(delete_url)]]";
 </script>
+
 <script src="js/view_profile.js"></script>
 [[end]]

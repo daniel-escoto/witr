@@ -146,6 +146,10 @@ let init = (app) => {
     window.location.href = `../view_profile/${username}`;
   };
 
+  app.index = function () {
+    window.location.href = `../`;
+  };
+
   app.delete_post = function () {
     let id = app.vue.post.id;
     axios
@@ -294,6 +298,7 @@ let init = (app) => {
     delete_comment: app.delete_comment,
     upvote_comment: app.upvote_comment,
     downvote_comment: app.downvote_comment,
+    index: app.index,
   };
 
   app.vue = new Vue({

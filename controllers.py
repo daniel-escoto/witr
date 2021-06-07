@@ -148,8 +148,14 @@ def load_posts():
 def load_profposts(username):
     user = auth.get_user() or redirect(URL('auth/login'))
     rows = db(db.post.username == username).select().as_list()
+    comment_counts = {}
+    for row in rows:
+        id = row.get("id")
+        comment_count = (len(db(db.comment.parent_post == id).select().as_list()))
+        comment_counts[id] = comment_count
     return dict(rows=rows,
-                email=user.get("email"),)
+                email=user.get("email"),
+                comment_counts=comment_counts,)
 
 @action('find_posts')
 @action.uses(url_signer.verify(), db)

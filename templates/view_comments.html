@@ -13,6 +13,13 @@
   <!-- sort selecter -->
 
   <div class="container block">
+    <span @click="index" class="button is-danger">
+      <i>Go Back</i>
+    </span>
+    <p class="content has-text-weight-bold has-text-white">Post</p>
+  </div>
+
+  <div class="container block">
     <!-- post -->
     <div class="tile is-ancestor has-background-light">
       <div class="tile is-vertical pr-6 py-5 is-parent">
@@ -281,7 +288,7 @@
   </div>
 
   <div class="container block">
-    <p class="content has-text-weight-bold">Comments</p>
+    <p class="content has-text-weight-bold has-text-white">Comments</p>
   </div>
 
   <div v-for="r in rows" class="container block">
