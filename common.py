@@ -91,8 +91,8 @@ auth_messages['buttons']['lost-password'] = "Lost password"
 
 # And button classes.
 auth_button_classes = {
-    "lost-password": "button is-danger is-light",
-    "register": "button is-info is-light",
+    "lost-password": "button is-danger",
+    "register": "button is-info ",
     "request": "button is-primary",
     "sign-in": "button is-primary",
     "sign-up": "button is-success",
@@ -104,7 +104,7 @@ auth.param.button_classes = auth_button_classes
 auth.param.registration_requires_confirmation = False
 auth.param.registration_requires_approval = False
 auth.param.allowed_actions = settings.ALLOWED_ACTIONS
-auth.param.login_expiration_time = 3600
+auth.param.login_expiration_time = 6400
 # FIXME: Readd for production.
 auth.param.password_complexity = {"entropy": 2}
 auth.param.block_previous_password_num = 3
