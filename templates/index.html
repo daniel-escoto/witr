@@ -19,13 +19,13 @@
         <div class="level-item">
           <p class="control has-icons-right">
             <input
-              class="input has-background-dark"
+              class="input has-background-dark has-text-light"
               v-model="query_posts"
               placeholder="Search Post"
               @keyup="find_posts"
             />
             <span class="icon is-small is-right">
-              <i class="fa fa-search"></i>
+              <i class="fa fa-search has-text-light"></i>
             </span>
           </p>
         </div>
@@ -38,7 +38,11 @@
     <div class="form">
       <!-- for textarea -->
       <div class="field">
-        <textarea v-model="add_content" class="textarea"></textarea>
+        <textarea
+          v-model="add_content"
+          class="textarea has-background-dark has-text-light"
+          placeholder="Insert post here..."
+        ></textarea>
       </div>
 
       <!-- for buttons -->
