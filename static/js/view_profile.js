@@ -9,9 +9,65 @@ function removeItem(array, item) {
   }
 }
 
+function ago(v) {
+  v = 0 | ((Date.now() - v) / 1e3);
+  var a,
+    b = {
+      second: 60,
+      minute: 60,
+      hour: 24,
+      day: 7,
+      week: 4.35,
+      month: 12,
+      year: 1e4,
+    },
+    c;
+  for (a in b) {
+    c = v % b[a];
+    if (!(v = 0 | (v / b[a]))) return c + " " + (c - 1 ? a + "s" : a);
+  }
+}
+
+function pad(n) {
+  return n < 10 ? "0" + n : n;
+}
+
+// hour:minute AM/PM · Month Day, Year
+function displayTimeDate(timeDateString) {
+  let date = new Date(timeDateString);
+  let hour = date.getHours();
+  let minute = date.getMinutes();
+  let mid = "AM";
+
+  if (hour > 12) {
+    mid = "PM";
+    hour -= 12;
+  } else if (hour === 0) {
+    hour = 12;
+  }
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  let month = monthNames[date.getMonth()];
+  let day = date.getDate();
+  let year = date.getFullYear();
+  return `${pad(hour)}:${pad(minute)} ${mid} · ${month} ${day}, ${year}`;
+}
 
 let init = (app) => {
-    
   app.data = {
     username: "",
     full_name: "",
@@ -30,9 +86,9 @@ let init = (app) => {
     deleting: false, // delete in progress
     delete_confirmation: false, // Show the delete confirmation thing.
     rating: "",
-    rep:"",
+    rep: "",
   };
-  
+
   app.enumerate = (a) => {
     // This adds an _idx field to each element of the array.
     let k = 0;
@@ -43,7 +99,6 @@ let init = (app) => {
     return a;
   };
 
-  
   app.delete_post = function (row_idx) {
     let id = app.vue.rows[row_idx].id;
     axios
@@ -143,7 +198,7 @@ let init = (app) => {
   app.hide_votes = function () {
     app.vue.hover_idx = -1;
   };
-/*
+  /*
   app.upload_file = function (event){
       let input =event.target;
       let file = input.files[0];
@@ -167,110 +222,122 @@ let init = (app) => {
       }
   }
 */
-    app.upload_file = function (event) {
-        let input = event.target;
-        let file = input.files[0];
-        if (file) {
-            app.vue.uploading = true;
-            let file_type = file.type;
-            let file_name = file.name;
-            let file_size = file.size;
-            // Requests the upload URL.
-            axios.post(obtain_gcs_url, {
-                action: "PUT",
-                mimetype: file_type,
-                file_name: file_name
-            }).then ((r) => {
-                let upload_url = r.data.signed_url;
-                let file_path = r.data.file_path;
-                // Uploads the file, using the low-level interface.
-                let req = new XMLHttpRequest();
-                // We listen to the load event = the file is uploaded, and we call upload_complete.
-                // That function will notify the server `of the location of the image.
-                req.addEventListener("load", function () {
-                    app.upload_complete(file_name, file_type, file_size, file_path);
-                });
-                // TODO: if you like, add a listener for "error" to detect failure.
-                req.open("PUT", upload_url, true);
-                req.send(file);
-            });
-        }
-    }
-
-    app.upload_complete = function (file_name, file_type, file_size, file_path) {
-        // We need to let the server know that the upload was complete;
-        axios.post(notify_url, {
-            file_name: file_name,
-            file_type: file_type,
-            file_path: file_path,
-            file_size: file_size,
-        }).then( function (r) {
-            app.vue.uploading = false;
-            app.vue.file_name = file_name;
-            app.vue.file_type = file_type;
-            app.vue.file_path = file_path;
-            app.vue.file_size = file_size;
-            app.vue.file_date = r.data.file_date;
-            app.vue.picture = r.data.picture;
+  app.upload_file = function (event) {
+    let input = event.target;
+    let file = input.files[0];
+    if (file) {
+      app.vue.uploading = true;
+      let file_type = file.type;
+      let file_name = file.name;
+      let file_size = file.size;
+      // Requests the upload URL.
+      axios
+        .post(obtain_gcs_url, {
+          action: "PUT",
+          mimetype: file_type,
+          file_name: file_name,
+        })
+        .then((r) => {
+          let upload_url = r.data.signed_url;
+          let file_path = r.data.file_path;
+          // Uploads the file, using the low-level interface.
+          let req = new XMLHttpRequest();
+          // We listen to the load event = the file is uploaded, and we call upload_complete.
+          // That function will notify the server `of the location of the image.
+          req.addEventListener("load", function () {
+            app.upload_complete(file_name, file_type, file_size, file_path);
+          });
+          // TODO: if you like, add a listener for "error" to detect failure.
+          req.open("PUT", upload_url, true);
+          req.send(file);
         });
     }
+  };
 
-    app.delete_file = function () {
-        if (!app.vue.delete_confirmation) {
-            // Ask for confirmation before deleting it.
-            app.vue.delete_confirmation = true;
-        } else {
-            // It's confirmed.
-            app.vue.delete_confirmation = false;
-            app.vue.deleting = true;
-            // Obtains the delete URL.
-            let file_path = app.vue.file_path;
-            axios.post(obtain_gcs_url, {
-                action: "DELETE",
-                file_path: file_path,
-            }).then(function (r) {
-                let delete_url = r.data.signed_url;
-                if (delete_url) {
-                    // Performs the deletion request.
-                    let req = new XMLHttpRequest();
-                    req.addEventListener("load", function () {
-                        app.deletion_complete(file_path);
-                    });
-                    // TODO: if you like, add a listener for "error" to detect failure.
-                    req.open("DELETE", delete_url);
-                    req.send();
-
-                }
-            });
-        }
-    };
-
-    app.deletion_complete = function (file_path) {
-        // We need to notify the server that the file has been deleted on GCS.
-        axios.post(delete_url, {
-            file_path: file_path,
-        }).then (function (r) {
-            // Poof, no more file.
-            app.vue.deleting =  false;
-            app.vue.file_name = null;
-            app.vue.file_type = null;
-            app.vue.file_date = null;
-            app.vue.file_path = null;
-            app.vue.picture = "";
-        })
-    }
-
-    app.set_result = function (r) {
-        // Sets the results after a server call.
-        app.vue.file_name = r.data.file_name;
-        app.vue.file_type = r.data.file_type;
+  app.upload_complete = function (file_name, file_type, file_size, file_path) {
+    // We need to let the server know that the upload was complete;
+    axios
+      .post(notify_url, {
+        file_name: file_name,
+        file_type: file_type,
+        file_path: file_path,
+        file_size: file_size,
+      })
+      .then(function (r) {
+        app.vue.uploading = false;
+        app.vue.file_name = file_name;
+        app.vue.file_type = file_type;
+        app.vue.file_path = file_path;
+        app.vue.file_size = file_size;
         app.vue.file_date = r.data.file_date;
-        app.vue.file_path = r.data.file_path;
-        app.vue.file_size = r.data.file_size;
+        app.vue.picture = r.data.picture;
+      });
+  };
+
+  app.delete_file = function () {
+    if (!app.vue.delete_confirmation) {
+      // Ask for confirmation before deleting it.
+      app.vue.delete_confirmation = true;
+    } else {
+      // It's confirmed.
+      app.vue.delete_confirmation = false;
+      app.vue.deleting = true;
+      // Obtains the delete URL.
+      let file_path = app.vue.file_path;
+      axios
+        .post(obtain_gcs_url, {
+          action: "DELETE",
+          file_path: file_path,
+        })
+        .then(function (r) {
+          let delete_url = r.data.signed_url;
+          if (delete_url) {
+            // Performs the deletion request.
+            let req = new XMLHttpRequest();
+            req.addEventListener("load", function () {
+              app.deletion_complete(file_path);
+            });
+            // TODO: if you like, add a listener for "error" to detect failure.
+            req.open("DELETE", delete_url);
+            req.send();
+          }
+        });
     }
-  
-  
- 
+  };
+
+  app.deletion_complete = function (file_path) {
+    // We need to notify the server that the file has been deleted on GCS.
+    axios
+      .post(delete_url, {
+        file_path: file_path,
+      })
+      .then(function (r) {
+        // Poof, no more file.
+        app.vue.deleting = false;
+        app.vue.file_name = null;
+        app.vue.file_type = null;
+        app.vue.file_date = null;
+        app.vue.file_path = null;
+        app.vue.picture = "";
+      });
+  };
+
+  app.set_result = function (r) {
+    // Sets the results after a server call.
+    app.vue.file_name = r.data.file_name;
+    app.vue.file_type = r.data.file_type;
+    app.vue.file_date = r.data.file_date;
+    app.vue.file_path = r.data.file_path;
+    app.vue.file_size = r.data.file_size;
+  };
+
+  app.view_comments = function (comments_id) {
+    window.location.href = `../view_comments/${comments_id}`;
+  };
+  app.index = function () {
+    window.location.href = `../`;
+  };
+
   app.methods = {
     delete_post: app.delete_post,
     upvote_post: app.upvote_post,
@@ -280,7 +347,8 @@ let init = (app) => {
     hide_votes: app.hide_votes,
     upload_file: app.upload_file,
     delete_file: app.delete_file, // Delete the file.
-    
+    index: app.index,
+    view_comments: app.view_comments,
   };
 
   app.vue = new Vue({
@@ -296,17 +364,22 @@ let init = (app) => {
       app.vue.permission = response.data.permission;
       app.vue.picture = response.data.picture;
       app.vue.rating = response.data.rating;
-    app.vue.rep = response.data.rep;
+      app.vue.rep = response.data.rep;
     });
     axios.get(load_profposts_url).then(function (response) {
+      let comment_counts = response.data.comment_counts;
       app.vue.rows = app.enumerate(response.data.rows);
+      app.vue.rows.forEach(function (row) {
+        let d = new Date(row.datetime);
+        row.display_datetime = `${ago(d.getTime())} ago`;
+
+        row.comment_count = comment_counts[row.id];
+      });
       app.vue.email = response.data.email;
     });
-    axios.get(file_info_url)
-        .then(function (r) {
-            app.set_result(r);
+    axios.get(file_info_url).then(function (r) {
+      app.set_result(r);
     });
-    
   };
   app.init();
 };

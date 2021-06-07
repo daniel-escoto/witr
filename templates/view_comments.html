@@ -13,17 +13,24 @@
   <!-- sort selecter -->
 
   <div class="container block">
+    <span @click="index" class="button is-danger">
+      <i>Go Back</i>
+    </span>
+    <p class="content has-text-weight-bold has-text-white">Post</p>
+  </div>
+
+  <div class="container block">
     <!-- post -->
-    <div class="tile is-ancestor has-background-light">
+    <div class="tile is-ancestor has-background-dark">
       <div class="tile is-vertical pr-6 py-5 is-parent">
         <!-- post text -->
-        <div class="tile is-child">
+        <div class="tile is-child has-text-white">
           <p>{{post.content}}</p>
         </div>
 
         <!-- post name -->
         <div class="tile is-child">
-          <a @click="view_profile(post.username)" class="has-text-grey">
+          <a @click="view_profile(post.username)" class="has-text-light">
             {{post.username}}</a
           >
         </div>
@@ -102,7 +109,7 @@
           <!-- thumbs up isn't selected -->
           <div
             v-else
-            class="tile notification"
+            class="tile notification has-background-dark"
             @click="upvote_post()"
             style="
               border-style: solid;
@@ -142,7 +149,7 @@
         <!-- counter -->
         <div class="tile level-item has-text-centered is-parent">
           <div class="tile is-child">
-            <p class="title has-text-grey">
+            <p class="title">
               <!-- blue count -->
               <span
                 v-if="post.thumbs_up.length > post.thumbs_down.length"
@@ -160,7 +167,7 @@
               </span>
 
               <!-- grey count -->
-              <span v-else class="has-text-grey">
+              <span v-else class="has-text-light">
                 {{post.thumbs_up.length - post.thumbs_down.length}}
               </span>
             </p>
@@ -205,7 +212,7 @@
           <!-- thumbs down isn't selected -->
           <div
             v-else
-            class="tile notification"
+            class="tile notification has-background-dark"
             @click="downvote_post()"
             style="
               border-style: solid;
@@ -251,7 +258,7 @@
       <div class="field">
         <textarea
           v-model="add_content"
-          class="textarea"
+          class="textarea has-background-dark has-text-light"
           placeholder="Insert comment here..."
         ></textarea>
       </div>
@@ -270,31 +277,31 @@
 
   <div class="container block">
     <div class="select">
-      <select v-model="sort_option">
-        <option>Most Recent</option>
-        <option>Most Upvotes</option>
-        <option>Most Downvotes</option>
-        <option>Most Votes</option>
-        <option>Most Controversial</option>
+      <select v-model="sort_option" class="has-background-dark has-text-light">
+        <option class="has-text-light">Most Recent</option>
+        <option class="has-text-light">Most Upvotes</option>
+        <option class="has-text-light">Most Downvotes</option>
+        <option class="has-text-light">Most Votes</option>
+        <option class="has-text-light">Most Controversial</option>
       </select>
     </div>
   </div>
 
   <div class="container block">
-    <p class="content has-text-weight-bold">Comments</p>
+    <p class="content has-text-weight-bold has-text-white">Comments</p>
   </div>
 
   <div v-for="r in rows" class="container block">
     <!-- post -->
-    <div class="tile is-ancestor has-background-light">
+    <div class="tile is-ancestor has-background-dark">
       <div class="tile is-vertical pr-6 py-5 is-parent">
         <!-- post text -->
-        <div class="tile is-child">
+        <div class="tile is-child has-text-white">
           <p>{{r.content}}</p>
         </div>
 
         <!-- post name -->
-        <div class="tile is-child">
+        <div class="tile is-child has-text-light">
           <a @click="view_profile(r.username)" class="has-text-grey">
             {{r.username}}</a
           >
@@ -341,7 +348,7 @@
                   </div></span
                 >
                 <!-- grey count -->
-                <span v-else class="has-text-grey">
+                <span v-else class="has-text-light">
                   <div class="content">
                     {{r.thumbs_up.length - r.thumbs_down.length}}
                   </div>
