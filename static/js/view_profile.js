@@ -9,6 +9,63 @@ function removeItem(array, item) {
   }
 }
 
+function ago(v) {
+  v = 0 | ((Date.now() - v) / 1e3);
+  var a,
+    b = {
+      second: 60,
+      minute: 60,
+      hour: 24,
+      day: 7,
+      week: 4.35,
+      month: 12,
+      year: 1e4,
+    },
+    c;
+  for (a in b) {
+    c = v % b[a];
+    if (!(v = 0 | (v / b[a]))) return c + " " + (c - 1 ? a + "s" : a);
+  }
+}
+
+function pad(n) {
+  return n < 10 ? "0" + n : n;
+}
+
+// hour:minute AM/PM · Month Day, Year
+function displayTimeDate(timeDateString) {
+  let date = new Date(timeDateString);
+  let hour = date.getHours();
+  let minute = date.getMinutes();
+  let mid = "AM";
+
+  if (hour > 12) {
+    mid = "PM";
+    hour -= 12;
+  } else if (hour === 0) {
+    hour = 12;
+  }
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  let month = monthNames[date.getMonth()];
+  let day = date.getDate();
+  let year = date.getFullYear();
+  return `${pad(hour)}:${pad(minute)} ${mid} · ${month} ${day}, ${year}`;
+}
 
 let init = (app) => {
     
@@ -269,8 +326,12 @@ let init = (app) => {
         app.vue.file_size = r.data.file_size;
     }
   
-  
- 
+    app.view_comments = function (comments_id) {
+    window.location.href = `../view_comments/${comments_id}`;
+  };
+   app.index = function () {
+    window.location.href = `../`;
+  };
   app.methods = {
     delete_post: app.delete_post,
     upvote_post: app.upvote_post,
@@ -280,6 +341,8 @@ let init = (app) => {
     hide_votes: app.hide_votes,
     upload_file: app.upload_file,
     delete_file: app.delete_file, // Delete the file.
+    index: app.index,
+    view_comments: app.view_comments,
     
   };
 
@@ -299,7 +362,14 @@ let init = (app) => {
     app.vue.rep = response.data.rep;
     });
     axios.get(load_profposts_url).then(function (response) {
-      app.vue.rows = app.enumerate(response.data.rows);
+        let comment_counts = response.data.comment_counts;
+        app.vue.rows = app.enumerate(response.data.rows);
+        app.vue.rows.forEach(function (row) {
+        let d = new Date(row.datetime);
+        row.display_datetime = `${ago(d.getTime())} ago`;
+
+        row.comment_count = comment_counts[row.id];
+      });
       app.vue.email = response.data.email;
     });
     axios.get(file_info_url)

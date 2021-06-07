@@ -11,7 +11,12 @@
 
 <div class="section" id="vue-target" v-cloak>
   <!-- sort selecter -->
-
+  <div class="container block">
+    <span @click="index" class="button is-danger">
+        <i>Go Back</i>
+   </span>
+    <p class="content has-text-weight-bold has-text-white">Post</p>
+  </div>
   <div class="container block">
     <!-- post -->
     <div class="tile is-ancestor has-background-light">
@@ -281,7 +286,7 @@
   </div>
 
   <div class="container block">
-    <p class="content has-text-weight-bold">Comments</p>
+    <p class="content has-text-weight-bold has-text-white">Comments</p>
   </div>
 
   <div v-for="r in rows" class="container block">
@@ -402,5 +407,6 @@
   let upvote_comment_url = "[[=XML(upvote_comment_url)]]";
   let downvote_comment_url = "[[=XML(downvote_comment_url)]]";
 </script>
+
 <script src="js/view_comments.js"></script>
 [[end]]

@@ -4,6 +4,7 @@
   [v-cloak] {
     display: none;
   }
+
 </style>
 
 <div class="section" id="vue-target" v-cloak>
@@ -11,7 +12,26 @@
 
   <!-- title -->
   <div class="container block">
-    <h1 class="title">witr</h1>
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <h1 class="title has-text-white">Who's in the Right?</h1>
+        </div>
+        <div class="level-item">
+          <p class="control has-icons-right">
+            <input
+              class="input"
+              v-model="query_posts"
+              placeholder="Search Post"
+              @keyup="find_posts"
+            />
+            <span class="icon is-small is-right">
+              <i class="fa fa-search"></i>
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- post options -->
@@ -207,6 +227,8 @@
   let upvote_post_url = "[[=XML(upvote_post_url)]]";
   let downvote_post_url = "[[=XML(downvote_post_url)]]";
   let get_vote_names_url = "[[=XML(get_vote_names_url)]]";
+  let find_posts_url = "[[=XML(find_posts_url)]]";
 </script>
+
 <script type="module" src="js/index.js"></script>
 [[end]]

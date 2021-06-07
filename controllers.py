@@ -66,7 +66,30 @@ def index():
         upvote_post_url = URL('upvote_post', signer=url_signer),
         downvote_post_url = URL('downvote_post', signer=url_signer),
         get_vote_names_url = URL('get_vote_names', signer=url_signer),
+        find_posts_url = URL('find_posts', signer=url_signer),
     )
+
+
+
+
+
+
+
+
+@action('find_posts')
+@action.uses(url_signer.verify(), db)
+def find_posts():
+    t = request.params.get('q')
+    if t:
+        tt = t.strip()
+        q = ((db.post.content.contains(tt)))
+    else:
+        q = db.post.id > 0
+    posts = db(q).select(db.post.ALL, distinct=True).as_list()
+    return dict(
+        posts=posts)
+
+
 
 
 @action('view_leaderboard', method="GET")
@@ -147,8 +170,15 @@ def load_posts():
 def load_profposts(username):
     user = auth.get_user() or redirect(URL('auth/login'))
     rows = db(db.post.username == username).select().as_list()
+    comment_counts = {}
+    for row in rows:
+        id = row.get("id")
+        comment_count = (len(db(db.comment.parent_post == id).select().as_list()))
+        comment_counts[id] = comment_count
+
     return dict(rows=rows,
-                email=user.get("email"),)
+                email=user.get("email"),
+                comment_counts=comment_counts,)
 
 @action('add_post', method="POST")
 @action.uses(url_signer.verify(), db)

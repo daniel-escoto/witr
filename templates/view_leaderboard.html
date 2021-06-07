@@ -9,16 +9,21 @@
 
 </style>
 <div class="section" id="vue-target" v-cloak>
-
+      <div class="container block">
+          <span @click="index" class="button is-danger">
+                <i>Go Back</i>
+           </span>
+            <h1 class="title has-text-white">Leaderboard</h1>
+            <div class="select">
+                <select v-model="sort_option">
+                    <option>Highest Average</option>
+                    <option>Lowest Average</option>
+              </select>
+            </div>
+      </div>
 
   <div class="container block">
-    <h1 class="title">Leaderboard</h1>
-    <div class="select">
-        <select v-model="sort_option">
-            <option>Highest Average</option>
-            <option>Lowest Average</option>
-      </select>
-    </div>
+ 
     <table class="table is-striped is-narrow is-fullwidth">
       <tr>
         <th></th>

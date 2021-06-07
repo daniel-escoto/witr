@@ -39,11 +39,14 @@ let init = (app) => {
   app.view_profile = function (username) {
     window.location.href = `../view_profile/${username}`;
   };
-
+   app.index = function () {
+    window.location.href = `../`;
+  };
     // We form the dictionary of all methods, so we can assign them
     // to the Vue app in a single blow.
     app.methods = {
         view_profile: app.view_profile,
+        index: app.index
     };
 
     // This creates the Vue instance.

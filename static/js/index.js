@@ -80,6 +80,7 @@ let init = (app) => {
     add_content: "",
     rows: [],
     email: "",
+    query_posts: "",
   };
 
   app.watch = {
@@ -195,7 +196,15 @@ let init = (app) => {
   app.set_add_post = function (new_post) {
     app.vue.add_mode = new_post;
   };
-
+  
+  app.find_posts = function () {
+    axios
+      .get(find_posts_url, { params: { q: app.vue.query_posts } })
+      .then(function (r) {
+        app.vue.rows = app.enumerate(r.data.posts);
+      });
+  };
+  
   app.delete_post = function (row_idx) {
     let id = app.vue.rows[row_idx].id;
     axios
@@ -321,6 +330,8 @@ let init = (app) => {
     view_profile: app.view_profile,
     view_comments: app.view_comments,
     view_leaderboard: app.view_leaderboard,
+    find_posts: app.find_posts,
+    
   };
 
   // This creates the Vue instance.
@@ -346,7 +357,6 @@ let init = (app) => {
       });
       app.vue.email = response.data.email;
       app.vue.sort_option = "Most Recent";
-      console.log(app.vue.rows);
     });
   };
 
