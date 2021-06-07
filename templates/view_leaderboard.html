@@ -14,22 +14,22 @@
     </span>
     <h1 class="title has-text-white">Leaderboard</h1>
     <div class="select">
-      <select v-model="sort_option">
-        <option>Highest Average</option>
-        <option>Lowest Average</option>
+      <select v-model="sort_option" class="has-background-dark has-text-light">
+        <option class="has-text-light">Highest Average</option>
+        <option class="has-text-light">Lowest Average</option>
       </select>
     </div>
   </div>
 
   <div class="container block">
-    <table class="table is-striped is-narrow is-fullwidth">
+    <table class="table is-striped is-narrow is-fullwidth has-background-dark">
       <tr>
         <th></th>
-        <th>Username</th>
-        <th>Average Rating</th>
-        <th>Reputation</th>
+        <th class="has-text-light">Username</th>
+        <th class="has-text-light">Average Rating</th>
+        <th class="has-text-light">Reputation</th>
       </tr>
-      <tr v-for="r in rows">
+      <tr v-for="r in rows" class="has-background-dark">
         <td>
           <a @click="view_profile(r.username)">
             <img v-if="r.picture" width="42" alt="Avatar" :src="r.picture" />
@@ -42,12 +42,12 @@
           </a>
         </td>
         <td>
-          <a @click="view_profile(r.username)" class="has-text-black">
+          <a @click="view_profile(r.username)" class="has-text-light">
             {{r.username}}
           </a>
         </td>
-        <td class="has-text-black">{{r.avg}}</td>
-        <td class="has-text-black">{{r.reputation}}</td>
+        <td class="has-text-light">{{r.avg}}</td>
+        <td class="has-text-light">{{r.reputation}}</td>
       </tr>
     </table>
   </div>

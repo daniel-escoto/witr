@@ -33,7 +33,7 @@
     <!-- Creating Profile Container aligned to Left Side  -->
       <div class = "column is-one-quarter">
             <div class = "container block">
-                <div class="card profCard">
+                <div class="card profCard has-background-dark">
                   <div class="card-content">
                     <div class="media">
                       <div class="media-left">
@@ -83,11 +83,11 @@
 
                       </div>
                       <div class="media-content">
-                        <p class="title is-4">{{full_name}}</p>
-                        <p class="subtitle is-6">{{username}}</p>
+                        <p class="title is-4 has-text-white">{{full_name}}</p>
+                        <p class="subtitle is-6 has-text-light">{{username}}</p>
                         <div class="content">
-                                <p class="has-text-black">Rating: {{rating}}</p>
-                                <p class = "has-text-black">Reputation: {{rep}}</p>
+                                <p class="has-text-white">Rating: {{rating}}</p>
+                                <p class = "has-text-white">Reputation: {{rep}}</p>
                         </div>
                       </div>
                     </div>
@@ -104,16 +104,16 @@
                     <!-- posts -->
                     <div v-for="r in rows" class="container block">
                         <!-- post -->
-                        <div class="tile is-ancestor has-background-light">
+                        <div class="tile is-ancestor has-background-dark">
                           <div class="tile is-vertical pr-6 py-5 is-parent">
                             <!-- post text -->
-                            <div class="tile is-child">
+                            <div class="tile is-child has-text-light">
                               <p>{{r.content}}</p>
                             </div>
                     
                             <!-- post name -->
                             <div class="tile is-child">
-                              <a @click="view_profile(r.username)" class="has-text-grey">
+                              <a @click="view_profile(r.username)" class="has-text-light">
                                 {{r.username}}</a
                               >
                             </div>
@@ -159,7 +159,7 @@
                                       </div></span
                                     >
                                     <!-- grey count -->
-                                    <span v-else class="has-text-grey">
+                                    <span v-else class="has-text-light">
                                       <div class="content">
                                         {{r.thumbs_up.length - r.thumbs_down.length}}
                                       </div>
@@ -184,10 +184,10 @@
                     
                                     <span
                                       @click="view_comments(r.id)"
-                                      class="has-text-success-dark"
+                                      class="has-text-success"
                                     >
                                       <i class="far fa-fw is-medium fa-comment fa-lg"></i>
-                                      <span v-if="r.comment_count > 0" class="content">
+                                      <span v-if="r.comment_count > 0" class="content has-text-light">
                                         {{`${r.comment_count} comment${r.comment_count == 1 ? '' :
                                         's'}`}}</span
                                       ></span
