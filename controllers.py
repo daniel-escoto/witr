@@ -94,7 +94,7 @@ def load_view_leaderboard():
         if r['username'] not in checked: #check if we havent validated already
             thumbsup=0
             thumbslength=0
-            dic['username'] = r['username']
+            dic['username'] = r['first_name'] + " " + r['last_name']
             checked.append(r['username'])
             rows2 = db(db.post.username == r['username']).select().as_list()
             picture = db(db.profile.username == r['username']).select().first()
@@ -398,12 +398,16 @@ def add_comment():
 
     email = user.get('email')
     username = user.get('username')
+    first_name = user.get('first_name')
+    last_name = user.get('last_name')
     thumbs_up = []
     thumbs_down = []
     now = datetime.datetime.now()
     id = db.comment.insert(
         parent_post=request.json.get('post_id'),
         content=request.json.get('content'),
+        first_name=first_name,
+        last_name=last_name,
         author_email=email,
         username=username,
         thumbs_up=thumbs_up,
@@ -413,6 +417,8 @@ def add_comment():
 
     return dict(id=id,
                 email=email,
+                first_name=first_name,
+                last_name=last_name,
                 username=username,
                 thumbs_up=thumbs_up,
                 thumbs_down=thumbs_down,

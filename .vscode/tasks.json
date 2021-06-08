@@ -15,7 +15,7 @@
     {
       "label": "build",
       "type": "shell",
-      "command": "py4web run /Users/danielescoto/Desktop/cse183/apps",
+      "command": "py4web run /Users/danielescoto/Desktop/cse183/py4web/apps",
       "group": "build",
       "dependsOrder": "sequence",
       "dependsOn": ["kill"]

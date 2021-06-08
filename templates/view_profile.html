@@ -23,7 +23,7 @@
     <span @click="index" class="button is-danger">
         <i>Go Back</i>
    </span>
-    <h1 class="title has-text-white">{{username}}'s Profile Page</h1>
+    <h1 class="title has-text-white">{{full_name}}'s Profile Page</h1>
     </div>
 
   
@@ -84,7 +84,7 @@
                       </div>
                       <div class="media-content">
                         <p class="title is-4 has-text-white">{{full_name}}</p>
-                        <p class="subtitle is-6 has-text-light">{{username}}</p>
+                        <!-- <p class="subtitle is-6 has-text-light">{{username}}</p> -->
                         <div class="content">
                                 <p class="has-text-white">Rating: {{rating}}</p>
                                 <p class = "has-text-white">Reputation: {{rep}}</p>
@@ -113,9 +113,9 @@
                     
                             <!-- post name -->
                             <div class="tile is-child">
-                              <a @click="view_profile(r.username)" class="has-text-light">
+                              <!-- <a @click="view_profile(r.username)" class="has-text-light">
                                 {{r.username}}</a
-                              >
+                              > -->
                             </div>
                     
                             <!-- buttons -->

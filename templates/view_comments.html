@@ -31,7 +31,7 @@
         <!-- post name -->
         <div class="tile is-child">
           <a @click="view_profile(post.username)" class="has-text-light">
-            {{post.username}}</a
+            {{post.first_name + " " + post.last_name}}</a
           >
         </div>
 
@@ -303,7 +303,7 @@
         <!-- post name -->
         <div class="tile is-child has-text-light">
           <a @click="view_profile(r.username)" class="has-text-grey">
-            {{r.username}}</a
+            {{r.first_name + " " + r.last_name}}</a
           >
         </div>
 

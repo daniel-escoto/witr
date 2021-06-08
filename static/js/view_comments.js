@@ -207,6 +207,8 @@ let init = (app) => {
           id: response.data.id,
           parent_id: app.vue.post.id,
           content: app.vue.add_content,
+          first_name: response.data.first_name,
+          last_name: response.data.last_name,
           author_email: response.data.email,
           username: response.data.username,
           thumbs_up: response.data.thumbs_up,

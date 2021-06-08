@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-      <style>
-
-  body{
-    background-color:#222222;
-    width: 100vw;
-    min-height: 100vh;
-  }
-    </style>
+  <style>
+    body {
+      background-color: #222222;
+      width: 100vw;
+      min-height: 100vh;
+    }
+  </style>
   <head>
-    <base href="[[=URL('static')]]/">
-    <script src="https://kit.fontawesome.com/1ce78da824.js" crossorigin="anonymous"></script>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="data:image/x-icon;base64,AAABAAEAAQEAAAEAIAAwAAAAFgAAACgAAAABAAAAAgAAAAEAIAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAAAAA=="/>
-    <link rel="stylesheet" href="css/bulma.css">
-    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.css">
-    [[block page_head]]<!-- individual pages can customize header here -->[[end]]
+    <base href="[[=URL('static')]]/" />
+    <script
+      src="https://kit.fontawesome.com/1ce78da824.js"
+      crossorigin="anonymous"
+    ></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="shortcut icon"
+      href="data:image/x-icon;base64,AAABAAEAAQEAAAEAIAAwAAAAFgAAACgAAAABAAAAAgAAAAEAIAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAAAAA=="
+    />
+    <link rel="stylesheet" href="css/bulma.css" />
+    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.css" />
+    [[block page_head]]
+    <!-- individual pages can customize header here -->
+    [[end]]
   </head>
   <body>
     <!-- Navigation bar -->
@@ -27,9 +34,14 @@
           <!-- <img class="logo" width="150" src="images/site_icon.png"> -->
         </a>
 
-
-        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="the-navbar-menu"
-           onclick="this.classList.toggle('is-active');document.getElementById(this.dataset.target).classList.toggle('is-active');">
+        <a
+          role="button"
+          class="navbar-burger burger"
+          aria-label="menu"
+          aria-expanded="false"
+          data-target="the-navbar-menu"
+          onclick="this.classList.toggle('is-active');document.getElementById(this.dataset.target).classList.toggle('is-active');"
+        >
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
@@ -42,23 +54,23 @@
         </div>
 
         <div class="navbar-end">
+          [[if globals().get('user'):]]
+          <div class="navbar-item">
+            <p>[[=globals().get('user').get('email')]]</p>
+          </div>
+          [[pass]]
           <div class="navbar-item">
             <div class="buttons">
               [[if globals().get('user'):]]
-                <div class="navbar-item has-dropdown is-hoverable">
-                  <a class="navbar-link is-primary">
-                    [[=globals().get('user').get('email')]]
-                  </a>
-                  <div class="navbar-dropdown">
-                    <a class="navbar-item" href="[[=URL('auth/logout')]]">Logout</a>
-                    <a class="navbar-item" href="[[=URL('auth/profile')]]">Profile</a>
-                    <a class="navbar-item" href="[[=URL('auth/change_password')]]">Change Password</a></li>
-
-                  </div>
-                </div>
+              <a class="button is-light" href="[[=URL('auth/logout')]]"
+                >Sign out</a
+              >
               [[else:]]
-                <a class="button is-link" href="[[=URL('auth/register')]]">Sign up</a>
-                <a class="button is-success" href="[[=URL('auth/login')]]">Log in</a>
+              <a
+                class="button is-link"
+                href="[[=URL('auth/plugin/oauth2google/login', vars=dict(next='../index'))]]"
+                >Sign In</a
+              >
               [[pass]]
             </div>
           </div>
@@ -69,7 +81,6 @@
     <!-- beginning of HTML inserted by extending template -->
     [[include]]
     <!-- end of HTML inserted by extending template -->
-
   </body>
   <script src="js/sugar.min.js"></script>
   <script src="js/axios.min.js"></script>
